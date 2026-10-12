@@ -1,0 +1,196 @@
+
+==============================================================================
+1. SANITY -- train
+==============================================================================
+rows: 3365   columns: ['Id', 'text', 'Coarse-Grained', 'Fine-Grained Hope']
+
+empty text fields: 0
+duplicate Ids:     0
+
+Coarse-Grained value counts (must be a small, clean set of labels):
+Coarse-Grained
+Encouraging Hope     1904
+Blended Hope          748
+Discouraging Hope     713
+
+Fine-Grained Hope value counts:
+Fine-Grained Hope
+Inspiring Hope     1170
+Hopelessness       1025
+Realistic Hope      511
+Optimistic Hope     405
+Fading Hope         254
+
+distinct labels: coarse=3, fine=5
+
+class balance (%):
+Coarse-Grained
+Encouraging Hope     56.6
+Blended Hope         22.2
+Discouraging Hope    21.2
+Fine-Grained Hope
+Inspiring Hope     34.8
+Hopelessness       30.5
+Realistic Hope     15.2
+Optimistic Hope    12.0
+Fading Hope         7.5
+
+==============================================================================
+1. SANITY -- dev
+==============================================================================
+rows: 753   columns: ['Id', 'text', 'Coarse-Grained', 'Fine-Grained Hope']
+
+empty text fields: 0
+duplicate Ids:     0
+
+Coarse-Grained value counts (must be a small, clean set of labels):
+Coarse-Grained
+Encouraging Hope     426
+Discouraging Hope    164
+Blended Hope         163
+
+Fine-Grained Hope value counts:
+Fine-Grained Hope
+Inspiring Hope     262
+Hopelessness       213
+Realistic Hope     123
+Optimistic Hope     98
+Fading Hope         57
+
+distinct labels: coarse=3, fine=5
+
+class balance (%):
+Coarse-Grained
+Encouraging Hope     56.6
+Discouraging Hope    21.8
+Blended Hope         21.6
+Fine-Grained Hope
+Inspiring Hope     34.8
+Hopelessness       28.3
+Realistic Hope     16.3
+Optimistic Hope    13.0
+Fading Hope         7.6
+
+==============================================================================
+2. COARSE x FINE STRUCTURE -- train
+==============================================================================
+Fine-Grained Hope  Fading Hope  Hopelessness  Inspiring Hope  Optimistic Hope  Realistic Hope
+Coarse-Grained                                                                               
+Blended Hope               234           336              62               58              58
+Discouraging Hope           19           688               3                0               3
+Encouraging Hope             1             1            1105              347             450
+
+valid (coarse, fine) pairs: 14 of 15 possible
+Empty cells (never co-occur) -- candidates for a decoding constraint:
+    Discouraging Hope    x Optimistic Hope
+
+How predictable is coarse from fine?
+  (if a fine label maps to one coarse label almost always, a flat
+   joint classifier over valid pairs may beat two separate heads)
+Fine-Grained Hope  Fading Hope  Hopelessness  Inspiring Hope  Optimistic Hope  Realistic Hope
+Coarse-Grained                                                                               
+Blended Hope              92.1          32.8             5.3             14.3            11.4
+Discouraging Hope          7.5          67.1             0.3              0.0             0.6
+Encouraging Hope           0.4           0.1            94.4             85.7            88.1
+
+==============================================================================
+2. COARSE x FINE STRUCTURE -- dev
+==============================================================================
+Fine-Grained Hope  Fading Hope  Hopelessness  Inspiring Hope  Optimistic Hope  Realistic Hope
+Coarse-Grained                                                                               
+Blended Hope                43            63              20               18              19
+Discouraging Hope           12           150               2                0               0
+Encouraging Hope             2             0             240               80             104
+
+valid (coarse, fine) pairs: 12 of 15 possible
+Empty cells (never co-occur) -- candidates for a decoding constraint:
+    Discouraging Hope    x Optimistic Hope
+    Discouraging Hope    x Realistic Hope
+    Encouraging Hope     x Hopelessness
+
+How predictable is coarse from fine?
+  (if a fine label maps to one coarse label almost always, a flat
+   joint classifier over valid pairs may beat two separate heads)
+Fine-Grained Hope  Fading Hope  Hopelessness  Inspiring Hope  Optimistic Hope  Realistic Hope
+Coarse-Grained                                                                               
+Blended Hope              75.4          29.6             7.6             18.4            15.4
+Discouraging Hope         21.1          70.4             0.8              0.0             0.0
+Encouraging Hope           3.5           0.0            91.6             81.6            84.6
+
+==============================================================================
+3. DUPLICATES AND LEAKAGE
+==============================================================================
+train: duplicate texts=0, fully identical rows=0
+train: texts carrying CONFLICTING labels = 0
+dev: duplicate texts=5, fully identical rows=1
+dev: texts carrying CONFLICTING labels = 4
+
+train/dev text overlap: 0 texts
+
+==============================================================================
+4. TEXT PROFILE -- train
+==============================================================================
+words per comment: median=5  mean=6.2  p95=13  max=37
+-> use max_length=64 (or 96) when tokenising; 512 wastes compute
+
+script mix:
+  Roman only    : 3049
+  Kannada only  : 212
+  both scripts  : 104
+  neither       : 0
+-> if the Kannada-script share is non-trivial, transliteration
+   normalisation is worth an ablation
+
+rows that look like stringified lists / broken quoting: 32
+    'Sokk dha movie️️.\', "Just watched... It\'s really awesome..... Satisfied with artist really'
+    'saikolu.puduper.\', "nice... I think it\'s copy from banatha bangara yakshagana..", \'Deverna'
+    'Nice movie\', "Nice film Shaine....& Mamu\'s team", \'good movie'
+    'Supr mamu\', "I\'m", \'Sprb team..'
+    'Nic\', "get job Guy\'s", \'baari porlu......thelth thelth saakand...'
+
+==============================================================================
+5. BASELINES (macro F1 on the official dev set)
+==============================================================================
+
+--- Coarse-Grained: char TF-IDF + LR (class_weight=balanced) ---
+                   precision    recall  f1-score   support
+
+     Blended Hope      0.467     0.558     0.508       163
+Discouraging Hope      0.429     0.439     0.434       164
+ Encouraging Hope      0.831     0.761     0.794       426
+
+         accuracy                          0.647       753
+        macro avg      0.575     0.586     0.579       753
+     weighted avg      0.664     0.647     0.654       753
+
+
+--- Fine-Grained Hope: char TF-IDF + LR (class_weight=balanced) ---
+                 precision    recall  f1-score   support
+
+    Fading Hope      0.177     0.246     0.206        57
+   Hopelessness      0.521     0.526     0.523       213
+ Inspiring Hope      0.634     0.576     0.604       262
+Optimistic Hope      0.433     0.429     0.431        98
+ Realistic Hope      0.234     0.236     0.235       123
+
+       accuracy                          0.462       753
+      macro avg      0.400     0.402     0.400       753
+   weighted avg      0.476     0.462     0.468       753
+
+
+SUMMARY (macro F1):
+  Coarse-Grained       majority               0.241
+  Coarse-Grained       tfidf+lr               0.574
+  Coarse-Grained       tfidf+lr+balanced      0.579
+  Fine-Grained Hope    majority               0.103
+  Fine-Grained Hope    tfidf+lr               0.380
+  Fine-Grained Hope    tfidf+lr+balanced      0.400
+
+Any neural model must clear the +balanced rows to be worth its cost.
+Watch for classes with 0.000 F1 -- that class was never predicted,
+which is exactly the failure that sank the published ACL systems.
+
+==============================================================================
+DONE
+==============================================================================
+Record these numbers. They are your paper's baseline table.

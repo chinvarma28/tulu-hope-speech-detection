@@ -1,0 +1,22 @@
+# Rename this file to ".gitignore" (with the dot, no .txt) in your project folder.
+# Each line is a pattern git will ignore -- these files never get uploaded to GitHub.
+
+# The Python virtual environment: large, machine-specific, rebuildable
+.venv/
+
+# Python's compiled cache files
+__pycache__/
+*.pyc
+
+# Downloaded models and saved checkpoints: hundreds of MB each
+models/
+checkpoints/
+*.pt
+*.bin
+*.safetensors
+
+# The dataset: keep it off a public repo unless the licence allows sharing
+data/
+
+# Mac system junk
+.DS_Store
