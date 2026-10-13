@@ -1,0 +1,147 @@
+model=bilstm  task=coarse  device=cuda  seeds=[1, 2, 3, 4, 5]
+train=3365  dev=753  characters in vocabulary=141
+  seed 1: checkpoint has different settings, training again
+  seed 1  epoch  1  loss 1.0673  tone 0.397  type 0.108  selection 0.397
+  seed 1  epoch  2  loss 1.0219  tone 0.406  type 0.114  selection 0.406
+  seed 1  epoch  3  loss 0.9952  tone 0.416  type 0.160  selection 0.416
+  seed 1  epoch  4  loss 0.9627  tone 0.450  type 0.131  selection 0.450
+  seed 1  epoch  5  loss 0.9338  tone 0.453  type 0.137  selection 0.453
+  seed 1  epoch  6  loss 0.8993  tone 0.483  type 0.151  selection 0.483
+  seed 1  epoch  7  loss 0.8770  tone 0.470  type 0.148  selection 0.470
+  seed 1  epoch  8  loss 0.8398  tone 0.480  type 0.125  selection 0.480
+  seed 1  epoch  9  loss 0.8107  tone 0.479  type 0.144  selection 0.479
+  seed 1  epoch 10  loss 0.7856  tone 0.495  type 0.150  selection 0.495
+  seed 1  epoch 11  loss 0.7664  tone 0.506  type 0.118  selection 0.506
+  seed 1  epoch 12  loss 0.7268  tone 0.508  type 0.132  selection 0.508
+  seed 1  epoch 13  loss 0.7012  tone 0.488  type 0.135  selection 0.488
+  seed 1  epoch 14  loss 0.6672  tone 0.521  type 0.120  selection 0.521
+  seed 1  epoch 15  loss 0.6380  tone 0.530  type 0.128  selection 0.530
+  seed 1  epoch 16  loss 0.6046  tone 0.509  type 0.145  selection 0.509
+  seed 1  epoch 17  loss 0.5840  tone 0.505  type 0.144  selection 0.505
+  seed 1  epoch 18  loss 0.5631  tone 0.512  type 0.140  selection 0.512
+  seed 1  epoch 19  loss 0.5319  tone 0.524  type 0.122  selection 0.524
+  seed 1  epoch 20  loss 0.5171  tone 0.513  type 0.147  selection 0.513
+  seed 1  epoch 21  loss 0.5052  tone 0.525  type 0.134  selection 0.525
+  stopping early: no improvement for 6 epochs
+  seed 1: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_coarse_seed1.pt
+  seed 2  epoch  1  loss 1.0654  tone 0.393  type 0.117  selection 0.393
+  seed 2  epoch  2  loss 1.0177  tone 0.405  type 0.175  selection 0.405
+  seed 2  epoch  3  loss 0.9867  tone 0.447  type 0.186  selection 0.447
+  seed 2  epoch  4  loss 0.9548  tone 0.477  type 0.194  selection 0.477
+  seed 2  epoch  5  loss 0.9250  tone 0.461  type 0.179  selection 0.461
+  seed 2  epoch  6  loss 0.8983  tone 0.471  type 0.168  selection 0.471
+  seed 2  epoch  7  loss 0.8782  tone 0.513  type 0.212  selection 0.513
+  seed 2  epoch  8  loss 0.8447  tone 0.502  type 0.192  selection 0.502
+  seed 2  epoch  9  loss 0.8212  tone 0.500  type 0.191  selection 0.500
+  seed 2  epoch 10  loss 0.7927  tone 0.513  type 0.192  selection 0.513
+  seed 2  epoch 11  loss 0.7575  tone 0.519  type 0.188  selection 0.519
+  seed 2  epoch 12  loss 0.7307  tone 0.527  type 0.203  selection 0.527
+  seed 2  epoch 13  loss 0.7020  tone 0.513  type 0.178  selection 0.513
+  seed 2  epoch 14  loss 0.6841  tone 0.523  type 0.203  selection 0.523
+  seed 2  epoch 15  loss 0.6418  tone 0.524  type 0.206  selection 0.524
+  seed 2  epoch 16  loss 0.6184  tone 0.538  type 0.187  selection 0.538
+  seed 2  epoch 17  loss 0.5952  tone 0.545  type 0.210  selection 0.545
+  seed 2  epoch 18  loss 0.5687  tone 0.514  type 0.188  selection 0.514
+  seed 2  epoch 19  loss 0.5450  tone 0.519  type 0.174  selection 0.519
+  seed 2  epoch 20  loss 0.5374  tone 0.500  type 0.196  selection 0.500
+  seed 2  epoch 21  loss 0.5197  tone 0.513  type 0.196  selection 0.513
+  seed 2  epoch 22  loss 0.4890  tone 0.478  type 0.174  selection 0.478
+  seed 2  epoch 23  loss 0.4914  tone 0.498  type 0.157  selection 0.498
+  stopping early: no improvement for 6 epochs
+  seed 2: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_coarse_seed2.pt
+  seed 3  epoch  1  loss 1.0758  tone 0.386  type 0.103  selection 0.386
+  seed 3  epoch  2  loss 1.0238  tone 0.413  type 0.100  selection 0.413
+  seed 3  epoch  3  loss 0.9920  tone 0.462  type 0.127  selection 0.462
+  seed 3  epoch  4  loss 0.9565  tone 0.464  type 0.155  selection 0.464
+  seed 3  epoch  5  loss 0.9221  tone 0.501  type 0.135  selection 0.501
+  seed 3  epoch  6  loss 0.8917  tone 0.490  type 0.137  selection 0.490
+  seed 3  epoch  7  loss 0.8625  tone 0.497  type 0.139  selection 0.497
+  seed 3  epoch  8  loss 0.8297  tone 0.499  type 0.129  selection 0.499
+  seed 3  epoch  9  loss 0.8020  tone 0.480  type 0.166  selection 0.480
+  seed 3  epoch 10  loss 0.7753  tone 0.510  type 0.155  selection 0.510
+  seed 3  epoch 11  loss 0.7271  tone 0.508  type 0.194  selection 0.508
+  seed 3  epoch 12  loss 0.6959  tone 0.501  type 0.174  selection 0.501
+  seed 3  epoch 13  loss 0.6682  tone 0.500  type 0.176  selection 0.500
+  seed 3  epoch 14  loss 0.6396  tone 0.514  type 0.177  selection 0.514
+  seed 3  epoch 15  loss 0.6055  tone 0.517  type 0.163  selection 0.517
+  seed 3  epoch 16  loss 0.5854  tone 0.528  type 0.163  selection 0.528
+  seed 3  epoch 17  loss 0.5609  tone 0.507  type 0.157  selection 0.507
+  seed 3  epoch 18  loss 0.5406  tone 0.514  type 0.164  selection 0.514
+  seed 3  epoch 19  loss 0.5025  tone 0.499  type 0.169  selection 0.499
+  seed 3  epoch 20  loss 0.5049  tone 0.519  type 0.189  selection 0.519
+  seed 3  epoch 21  loss 0.4938  tone 0.532  type 0.168  selection 0.532
+  seed 3  epoch 22  loss 0.4723  tone 0.526  type 0.148  selection 0.526
+  seed 3  epoch 23  loss 0.4679  tone 0.523  type 0.165  selection 0.523
+  seed 3  epoch 24  loss 0.4657  tone 0.529  type 0.166  selection 0.529
+  seed 3  epoch 25  loss 0.4426  tone 0.538  type 0.192  selection 0.538
+  seed 3  epoch 26  loss 0.4366  tone 0.534  type 0.183  selection 0.534
+  seed 3  epoch 27  loss 0.4315  tone 0.524  type 0.187  selection 0.524
+  seed 3  epoch 28  loss 0.4238  tone 0.523  type 0.180  selection 0.523
+  seed 3  epoch 29  loss 0.4123  tone 0.521  type 0.188  selection 0.521
+  seed 3  epoch 30  loss 0.4070  tone 0.512  type 0.179  selection 0.512
+  seed 3: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_coarse_seed3.pt
+  seed 4  epoch  1  loss 1.0663  tone 0.418  type 0.076  selection 0.418
+  seed 4  epoch  2  loss 1.0155  tone 0.441  type 0.065  selection 0.441
+  seed 4  epoch  3  loss 0.9810  tone 0.464  type 0.092  selection 0.464
+  seed 4  epoch  4  loss 0.9503  tone 0.479  type 0.096  selection 0.479
+  seed 4  epoch  5  loss 0.9064  tone 0.466  type 0.105  selection 0.466
+  seed 4  epoch  6  loss 0.8963  tone 0.478  type 0.108  selection 0.478
+  seed 4  epoch  7  loss 0.8651  tone 0.501  type 0.101  selection 0.501
+  seed 4  epoch  8  loss 0.8484  tone 0.499  type 0.110  selection 0.499
+  seed 4  epoch  9  loss 0.8202  tone 0.497  type 0.111  selection 0.497
+  seed 4  epoch 10  loss 0.7986  tone 0.492  type 0.104  selection 0.492
+  seed 4  epoch 11  loss 0.7720  tone 0.502  type 0.100  selection 0.502
+  seed 4  epoch 12  loss 0.7355  tone 0.502  type 0.095  selection 0.502
+  seed 4  epoch 13  loss 0.7079  tone 0.504  type 0.111  selection 0.504
+  seed 4  epoch 14  loss 0.6829  tone 0.491  type 0.114  selection 0.491
+  seed 4  epoch 15  loss 0.6584  tone 0.485  type 0.122  selection 0.485
+  seed 4  epoch 16  loss 0.6366  tone 0.492  type 0.143  selection 0.492
+  seed 4  epoch 17  loss 0.6158  tone 0.490  type 0.143  selection 0.490
+  seed 4  epoch 18  loss 0.5782  tone 0.496  type 0.135  selection 0.496
+  seed 4  epoch 19  loss 0.5525  tone 0.521  type 0.127  selection 0.521
+  seed 4  epoch 20  loss 0.5326  tone 0.485  type 0.136  selection 0.485
+  seed 4  epoch 21  loss 0.5234  tone 0.503  type 0.145  selection 0.503
+  seed 4  epoch 22  loss 0.4965  tone 0.511  type 0.155  selection 0.511
+  seed 4  epoch 23  loss 0.4880  tone 0.503  type 0.164  selection 0.503
+  seed 4  epoch 24  loss 0.4749  tone 0.503  type 0.150  selection 0.503
+  seed 4  epoch 25  loss 0.4671  tone 0.509  type 0.163  selection 0.509
+  stopping early: no improvement for 6 epochs
+  seed 4: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_coarse_seed4.pt
+  seed 5  epoch  1  loss 1.0631  tone 0.409  type 0.138  selection 0.409
+  seed 5  epoch  2  loss 1.0216  tone 0.407  type 0.148  selection 0.407
+  seed 5  epoch  3  loss 0.9814  tone 0.441  type 0.170  selection 0.441
+  seed 5  epoch  4  loss 0.9491  tone 0.449  type 0.178  selection 0.449
+  seed 5  epoch  5  loss 0.9174  tone 0.461  type 0.173  selection 0.461
+  seed 5  epoch  6  loss 0.9000  tone 0.454  type 0.168  selection 0.454
+  seed 5  epoch  7  loss 0.8673  tone 0.479  type 0.173  selection 0.479
+  seed 5  epoch  8  loss 0.8389  tone 0.478  type 0.180  selection 0.478
+  seed 5  epoch  9  loss 0.8096  tone 0.457  type 0.197  selection 0.457
+  seed 5  epoch 10  loss 0.7862  tone 0.463  type 0.191  selection 0.463
+  seed 5  epoch 11  loss 0.7458  tone 0.480  type 0.190  selection 0.480
+  seed 5  epoch 12  loss 0.7167  tone 0.456  type 0.193  selection 0.456
+  seed 5  epoch 13  loss 0.6891  tone 0.464  type 0.190  selection 0.464
+  seed 5  epoch 14  loss 0.6556  tone 0.474  type 0.186  selection 0.474
+  seed 5  epoch 15  loss 0.6249  tone 0.480  type 0.183  selection 0.480
+  seed 5  epoch 16  loss 0.5941  tone 0.448  type 0.201  selection 0.448
+  seed 5  epoch 17  loss 0.5689  tone 0.480  type 0.188  selection 0.480
+  stopping early: no improvement for 6 epochs
+  seed 5: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_coarse_seed5.pt
+
+================================================================
+bilstm / coarse   (5 seeds, 137s)
+  tone (L1) macro F1 : 0.523 +/- 0.023
+  M1 floor to beat   : tone 0.579   type 0.400   joint 0.490
+================================================================
+
+Tone, best seed:
+                   precision    recall  f1-score   support
+
+     Blended Hope      0.418     0.423     0.421       163
+Discouraging Hope      0.473     0.372     0.416       164
+ Encouraging Hope      0.769     0.829     0.798       426
+
+         accuracy                          0.641       753
+        macro avg      0.553     0.541     0.545       753
+     weighted avg      0.629     0.641     0.633       753
+
+saved: /kaggle/working/m2_outputs/results/m2_bilstm_coarse.json

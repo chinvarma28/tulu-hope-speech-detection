@@ -1,0 +1,80 @@
+{
+  "model": "bilstm",
+  "task": "coarse",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "tone_mean": 0.5226855455611712,
+  "tone_std": 0.022775243974087176,
+  "type_mean": null,
+  "type_std": null,
+  "best_epochs": [
+    15,
+    17,
+    25,
+    19,
+    11
+  ],
+  "per_class_f1_by_seed": [
+    {
+      "tone": {
+        "Blended Hope": 0.396,
+        "Discouraging Hope": 0.43,
+        "Encouraging Hope": 0.764
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.421,
+        "Discouraging Hope": 0.416,
+        "Encouraging Hope": 0.798
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.472,
+        "Discouraging Hope": 0.37,
+        "Encouraging Hope": 0.772
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.435,
+        "Discouraging Hope": 0.389,
+        "Encouraging Hope": 0.738
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.387,
+        "Discouraging Hope": 0.304,
+        "Encouraging Hope": 0.749
+      }
+    }
+  ],
+  "settings": {
+    "model": "bilstm",
+    "task": "coarse",
+    "train": "/kaggle/input/datasets/chinmayavittalvarma/training-1/train_clean.csv",
+    "dev": "/kaggle/input/datasets/chinmayavittalvarma/training-1/dev_multitask.csv",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "epochs": 30,
+    "patience": 6,
+    "batch_size": 64,
+    "lr": 0.001,
+    "smooth": 0.1,
+    "device": "auto",
+    "out_dir": "/kaggle/working/m2_outputs/results",
+    "ckpt_dir": "/kaggle/working/m2_outputs/checkpoints"
+  }
+}

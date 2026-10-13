@@ -1,0 +1,133 @@
+model=bilstm  task=multi  device=cuda  seeds=[1, 2, 3, 4, 5]
+train=3365  dev=753  characters in vocabulary=141
+  seed 1: checkpoint has different settings, training again
+  seed 1  epoch  1  loss 1.3319  tone 0.379  type 0.212  selection 0.296
+  seed 1  epoch  2  loss 1.2795  tone 0.400  type 0.292  selection 0.346
+  seed 1  epoch  3  loss 1.2504  tone 0.433  type 0.302  selection 0.367
+  seed 1  epoch  4  loss 1.2075  tone 0.435  type 0.313  selection 0.374
+  seed 1  epoch  5  loss 1.1761  tone 0.443  type 0.341  selection 0.392
+  seed 1  epoch  6  loss 1.1422  tone 0.492  type 0.328  selection 0.410
+  seed 1  epoch  7  loss 1.1136  tone 0.474  type 0.345  selection 0.410
+  seed 1  epoch  8  loss 1.0927  tone 0.480  type 0.357  selection 0.419
+  seed 1  epoch  9  loss 1.0524  tone 0.482  type 0.338  selection 0.410
+  seed 1  epoch 10  loss 1.0253  tone 0.491  type 0.370  selection 0.431
+  seed 1  epoch 11  loss 1.0020  tone 0.509  type 0.382  selection 0.445
+  seed 1  epoch 12  loss 0.9805  tone 0.475  type 0.374  selection 0.425
+  seed 1  epoch 13  loss 0.9496  tone 0.487  type 0.366  selection 0.427
+  seed 1  epoch 14  loss 0.9125  tone 0.509  type 0.369  selection 0.439
+  seed 1  epoch 15  loss 0.8976  tone 0.482  type 0.377  selection 0.429
+  seed 1  epoch 16  loss 0.8842  tone 0.483  type 0.365  selection 0.424
+  seed 1  epoch 17  loss 0.8441  tone 0.501  type 0.365  selection 0.433
+  stopping early: no improvement for 6 epochs
+  seed 1: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_multi_seed1.pt
+  seed 2  epoch  1  loss 1.3253  tone 0.411  type 0.235  selection 0.323
+  seed 2  epoch  2  loss 1.2706  tone 0.407  type 0.301  selection 0.354
+  seed 2  epoch  3  loss 1.2394  tone 0.442  type 0.311  selection 0.377
+  seed 2  epoch  4  loss 1.2056  tone 0.445  type 0.302  selection 0.374
+  seed 2  epoch  5  loss 1.1776  tone 0.468  type 0.340  selection 0.404
+  seed 2  epoch  6  loss 1.1517  tone 0.479  type 0.318  selection 0.399
+  seed 2  epoch  7  loss 1.1322  tone 0.501  type 0.353  selection 0.427
+  seed 2  epoch  8  loss 1.1055  tone 0.504  type 0.370  selection 0.437
+  seed 2  epoch  9  loss 1.0832  tone 0.504  type 0.364  selection 0.434
+  seed 2  epoch 10  loss 1.0558  tone 0.512  type 0.369  selection 0.441
+  seed 2  epoch 11  loss 1.0289  tone 0.525  type 0.371  selection 0.448
+  seed 2  epoch 12  loss 0.9991  tone 0.506  type 0.373  selection 0.439
+  seed 2  epoch 13  loss 0.9703  tone 0.500  type 0.354  selection 0.427
+  seed 2  epoch 14  loss 0.9368  tone 0.489  type 0.373  selection 0.431
+  seed 2  epoch 15  loss 0.9156  tone 0.476  type 0.372  selection 0.424
+  seed 2  epoch 16  loss 0.8928  tone 0.481  type 0.370  selection 0.425
+  seed 2  epoch 17  loss 0.8695  tone 0.501  type 0.371  selection 0.436
+  stopping early: no improvement for 6 epochs
+  seed 2: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_multi_seed2.pt
+  seed 3  epoch  1  loss 1.3404  tone 0.351  type 0.219  selection 0.285
+  seed 3  epoch  2  loss 1.2781  tone 0.431  type 0.280  selection 0.356
+  seed 3  epoch  3  loss 1.2417  tone 0.434  type 0.303  selection 0.368
+  seed 3  epoch  4  loss 1.2062  tone 0.442  type 0.327  selection 0.384
+  seed 3  epoch  5  loss 1.1787  tone 0.495  type 0.324  selection 0.410
+  seed 3  epoch  6  loss 1.1500  tone 0.500  type 0.336  selection 0.418
+  seed 3  epoch  7  loss 1.1191  tone 0.490  type 0.331  selection 0.410
+  seed 3  epoch  8  loss 1.0959  tone 0.471  type 0.345  selection 0.408
+  seed 3  epoch  9  loss 1.0706  tone 0.501  type 0.361  selection 0.431
+  seed 3  epoch 10  loss 1.0436  tone 0.521  type 0.383  selection 0.452
+  seed 3  epoch 11  loss 1.0067  tone 0.490  type 0.350  selection 0.420
+  seed 3  epoch 12  loss 0.9888  tone 0.505  type 0.351  selection 0.428
+  seed 3  epoch 13  loss 0.9634  tone 0.479  type 0.362  selection 0.421
+  seed 3  epoch 14  loss 0.9318  tone 0.497  type 0.386  selection 0.441
+  seed 3  epoch 15  loss 0.9169  tone 0.470  type 0.361  selection 0.416
+  seed 3  epoch 16  loss 0.8906  tone 0.493  type 0.376  selection 0.435
+  stopping early: no improvement for 6 epochs
+  seed 3: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_multi_seed3.pt
+  seed 4  epoch  1  loss 1.3338  tone 0.388  type 0.214  selection 0.301
+  seed 4  epoch  2  loss 1.2712  tone 0.436  type 0.298  selection 0.367
+  seed 4  epoch  3  loss 1.2391  tone 0.468  type 0.306  selection 0.387
+  seed 4  epoch  4  loss 1.2044  tone 0.464  type 0.326  selection 0.395
+  seed 4  epoch  5  loss 1.1722  tone 0.477  type 0.331  selection 0.404
+  seed 4  epoch  6  loss 1.1510  tone 0.496  type 0.377  selection 0.436
+  seed 4  epoch  7  loss 1.1252  tone 0.486  type 0.373  selection 0.430
+  seed 4  epoch  8  loss 1.1003  tone 0.485  type 0.351  selection 0.418
+  seed 4  epoch  9  loss 1.0765  tone 0.503  type 0.379  selection 0.441
+  seed 4  epoch 10  loss 1.0476  tone 0.515  type 0.371  selection 0.443
+  seed 4  epoch 11  loss 1.0215  tone 0.512  type 0.394  selection 0.453
+  seed 4  epoch 12  loss 0.9969  tone 0.509  type 0.363  selection 0.436
+  seed 4  epoch 13  loss 0.9631  tone 0.507  type 0.362  selection 0.435
+  seed 4  epoch 14  loss 0.9431  tone 0.517  type 0.404  selection 0.461
+  seed 4  epoch 15  loss 0.9111  tone 0.497  type 0.375  selection 0.436
+  seed 4  epoch 16  loss 0.8834  tone 0.477  type 0.358  selection 0.417
+  seed 4  epoch 17  loss 0.8595  tone 0.499  type 0.397  selection 0.448
+  seed 4  epoch 18  loss 0.8320  tone 0.494  type 0.392  selection 0.443
+  seed 4  epoch 19  loss 0.8030  tone 0.498  type 0.386  selection 0.442
+  seed 4  epoch 20  loss 0.7850  tone 0.491  type 0.386  selection 0.438
+  stopping early: no improvement for 6 epochs
+  seed 4: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_multi_seed4.pt
+  seed 5  epoch  1  loss 1.3232  tone 0.398  type 0.206  selection 0.302
+  seed 5  epoch  2  loss 1.2708  tone 0.418  type 0.286  selection 0.352
+  seed 5  epoch  3  loss 1.2329  tone 0.446  type 0.307  selection 0.376
+  seed 5  epoch  4  loss 1.1969  tone 0.462  type 0.319  selection 0.390
+  seed 5  epoch  5  loss 1.1622  tone 0.469  type 0.330  selection 0.400
+  seed 5  epoch  6  loss 1.1445  tone 0.466  type 0.324  selection 0.395
+  seed 5  epoch  7  loss 1.1268  tone 0.481  type 0.342  selection 0.412
+  seed 5  epoch  8  loss 1.0940  tone 0.489  type 0.318  selection 0.404
+  seed 5  epoch  9  loss 1.0627  tone 0.480  type 0.348  selection 0.414
+  seed 5  epoch 10  loss 1.0366  tone 0.495  type 0.370  selection 0.432
+  seed 5  epoch 11  loss 1.0030  tone 0.485  type 0.378  selection 0.431
+  seed 5  epoch 12  loss 0.9820  tone 0.486  type 0.362  selection 0.424
+  seed 5  epoch 13  loss 0.9491  tone 0.485  type 0.358  selection 0.421
+  seed 5  epoch 14  loss 0.9245  tone 0.491  type 0.372  selection 0.431
+  seed 5  epoch 15  loss 0.9115  tone 0.462  type 0.351  selection 0.406
+  seed 5  epoch 16  loss 0.8709  tone 0.489  type 0.349  selection 0.419
+  stopping early: no improvement for 6 epochs
+  seed 5: saved checkpoint /kaggle/working/m2_outputs/checkpoints/m2_bilstm_multi_seed5.pt
+
+================================================================
+bilstm / multi   (5 seeds, 102s)
+  tone (L1) macro F1 : 0.513 +/- 0.011
+  type (L2) macro F1 : 0.382 +/- 0.012
+  JOINT SCORE        : 0.448
+  M1 floor to beat   : tone 0.579   type 0.400   joint 0.490
+================================================================
+
+Tone, best seed:
+                   precision    recall  f1-score   support
+
+     Blended Hope      0.403     0.497     0.445       163
+Discouraging Hope      0.407     0.305     0.348       164
+ Encouraging Hope      0.755     0.761     0.758       426
+
+         accuracy                          0.604       753
+        macro avg      0.522     0.521     0.517       753
+     weighted avg      0.603     0.604     0.601       753
+
+Hope type, best seed:
+                 precision    recall  f1-score   support
+
+    Fading Hope      0.208     0.263     0.233        57
+   Hopelessness      0.520     0.498     0.508       213
+ Inspiring Hope      0.637     0.595     0.615       262
+Optimistic Hope      0.417     0.439     0.428        98
+ Realistic Hope      0.233     0.244     0.238       123
+
+       accuracy                          0.465       753
+      macro avg      0.403     0.408     0.404       753
+   weighted avg      0.477     0.465     0.470       753
+
+saved: /kaggle/working/m2_outputs/results/m2_bilstm_multi.json
