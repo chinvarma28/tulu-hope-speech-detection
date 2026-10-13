@@ -15,6 +15,10 @@ Run from the main project folder (tulu-hope-speech), with .venv active:
 --task coarse  only the tone head is trained                (single-task control)
 --task fine    only the hope-type head is trained           (single-task control)
 
+Each seed's best model is saved to checkpoints/ (change with --ckpt_dir). Running
+the same command again skips seeds that are already finished.
+The BiLSTM is slow on the Mac; notebooks/m2_bilstm_kaggle.ipynb runs it on a Kaggle GPU.
+
 Requires: torch, pandas, scikit-learn
 """
 
@@ -209,8 +213,11 @@ def set_seed(seed):
     torch.manual_seed(seed)
 
 
-def get_device():
-    """Use the Mac GPU (mps) if available, otherwise the CPU."""
+def get_device(choice="auto"):
+    """'auto' = use a GPU if there is one (mps on a Mac, cuda on Kaggle), otherwise the CPU.
+    Any other choice ('cpu', 'mps', 'cuda') is used as given."""
+    if choice != "auto":
+        return torch.device(choice)
     if torch.backends.mps.is_available():
         return torch.device("mps")
     if torch.cuda.is_available():
@@ -292,17 +299,58 @@ def run_one_seed(args, train_df, dev_df, vocab, c2i, f2i, seed, device):
         f1c, f1f, preds = evaluate(model, dev_dl, device)
         score = selection_score(args.task, f1c, f1f)
         # f"..." strings insert values: {f1c:.3f} prints f1c with 3 decimals.
+        # flush=True prints the line immediately, so progress shows up in log files.
         print(f"  seed {seed}  epoch {epoch:2d}  loss {total / len(train_dl):.4f}  "
-              f"tone {f1c:.3f}  type {f1f:.3f}  selection {score:.3f}")
+              f"tone {f1c:.3f}  type {f1f:.3f}  selection {score:.3f}", flush=True)
 
         if score > best["score"]:
-            best = {"score": score, "f1c": f1c, "f1f": f1f, "epoch": epoch, "preds": preds}
+            # Keep a copy of the weights from this best epoch, so we can save them later.
+            # {k: v ... for k, v in ...} is a "dict comprehension": a one-line loop that
+            # builds a dictionary. .cpu().clone() makes an independent copy in normal memory.
+            weights = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            best = {"score": score, "f1c": f1c, "f1f": f1f, "epoch": epoch, "preds": preds,
+                    "weights": weights}
             bad_epochs = 0
         else:
             bad_epochs += 1
             if bad_epochs >= args.patience:      # early stopping: no improvement lately
                 print(f"  stopping early: no improvement for {args.patience} epochs")
                 break
+    return best
+
+
+# ==========================================================================
+# PART 4. CHECKPOINTS
+# After each seed finishes, its best model is saved to a .pt file. If the run
+# is interrupted (e.g. a Kaggle session times out), running the same command
+# again skips every seed that already has a checkpoint and continues with the rest.
+# ==========================================================================
+
+def checkpoint_path(args, seed):
+    return Path(args.ckpt_dir) / f"m2_{args.model}_{args.task}_seed{seed}.pt"
+
+
+def checkpoint_settings(args):
+    """The settings that change what gets trained. A saved checkpoint is only
+    reused if these match exactly; otherwise that seed is trained again."""
+    ignore = ("seeds", "device", "out_dir", "ckpt_dir")   # these don't change the model
+    return {k: v for k, v in vars(args).items() if k not in ignore}
+
+
+def run_or_resume_seed(args, train_df, dev_df, vocab, c2i, f2i, seed, device):
+    path = checkpoint_path(args, seed)
+    if path.exists():
+        saved = torch.load(path, weights_only=True)
+        if saved["settings"] == checkpoint_settings(args):
+            print(f"  seed {seed}: checkpoint found ({path}), skipping training", flush=True)
+            return saved["best"]
+        print(f"  seed {seed}: checkpoint has different settings, training again", flush=True)
+
+    best = run_one_seed(args, train_df, dev_df, vocab, c2i, f2i, seed, device)
+    path.parent.mkdir(parents=True, exist_ok=True)   # create the folder if it is missing
+    torch.save({"settings": checkpoint_settings(args), "vocab": vocab,
+                "c2i": c2i, "f2i": f2i, "best": best}, path)
+    print(f"  seed {seed}: saved checkpoint {path}", flush=True)
     return best
 
 
@@ -318,9 +366,12 @@ def main():
     ap.add_argument("--batch_size", type=int, default=64)
     ap.add_argument("--lr", type=float, default=1e-3)       # 1e-3 means 0.001
     ap.add_argument("--smooth", type=float, default=0.1)
+    ap.add_argument("--device", choices=["auto", "cpu", "mps", "cuda"], default="auto")
+    ap.add_argument("--out_dir", default="results")        # where the .json results go
+    ap.add_argument("--ckpt_dir", default="checkpoints")   # where the .pt model files go
     args = ap.parse_args()
 
-    device = get_device()
+    device = get_device(args.device)
     print(f"model={args.model}  task={args.task}  device={device}  seeds={args.seeds}")
 
     train_df = pd.read_csv(args.train, dtype=str, keep_default_na=False)
@@ -335,7 +386,8 @@ def main():
     print(f"train={len(train_df)}  dev={len(dev_df)}  characters in vocabulary={len(vocab)}")
 
     start = time.time()
-    runs = [run_one_seed(args, train_df, dev_df, vocab, c2i, f2i, s, device) for s in args.seeds]
+    runs = [run_or_resume_seed(args, train_df, dev_df, vocab, c2i, f2i, s, device)
+            for s in args.seeds]
 
     cs = np.array([r["f1c"] for r in runs])
     fs = np.array([r["f1f"] for r in runs])
@@ -380,8 +432,8 @@ def main():
         # zip(a, b) pairs items up: ("Blended Hope", 0.51), ...; dict() turns the pairs into a dictionary.
         per_class.append(seed_result)
 
-    Path("results").mkdir(exist_ok=True)
-    out = Path("results") / f"m2_{args.model}_{args.task}.json"
+    Path(args.out_dir).mkdir(parents=True, exist_ok=True)
+    out = Path(args.out_dir) / f"m2_{args.model}_{args.task}.json"
     out.write_text(json.dumps({
         "model": args.model, "task": args.task, "seeds": args.seeds,
         "tone_mean": float(cs.mean()) if trained_tone else None,
