@@ -1,0 +1,112 @@
+{
+  "model": "cnn",
+  "task": "multi",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "tone_mean": 0.5467742972420611,
+  "tone_std": 0.010232182329149775,
+  "type_mean": 0.4106665396711165,
+  "type_std": 0.009139871800028902,
+  "best_epochs": [
+    13,
+    12,
+    11,
+    14,
+    16
+  ],
+  "per_class_f1_by_seed": [
+    {
+      "tone": {
+        "Blended Hope": 0.42,
+        "Discouraging Hope": 0.453,
+        "Encouraging Hope": 0.782
+      },
+      "type": {
+        "Fading Hope": 0.222,
+        "Hopelessness": 0.571,
+        "Inspiring Hope": 0.643,
+        "Optimistic Hope": 0.473,
+        "Realistic Hope": 0.191
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.457,
+        "Discouraging Hope": 0.391,
+        "Encouraging Hope": 0.813
+      },
+      "type": {
+        "Fading Hope": 0.193,
+        "Hopelessness": 0.521,
+        "Inspiring Hope": 0.631,
+        "Optimistic Hope": 0.389,
+        "Realistic Hope": 0.256
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.436,
+        "Discouraging Hope": 0.406,
+        "Encouraging Hope": 0.805
+      },
+      "type": {
+        "Fading Hope": 0.254,
+        "Hopelessness": 0.538,
+        "Inspiring Hope": 0.543,
+        "Optimistic Hope": 0.444,
+        "Realistic Hope": 0.32
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.384,
+        "Discouraging Hope": 0.4,
+        "Encouraging Hope": 0.795
+      },
+      "type": {
+        "Fading Hope": 0.186,
+        "Hopelessness": 0.56,
+        "Inspiring Hope": 0.58,
+        "Optimistic Hope": 0.485,
+        "Realistic Hope": 0.257
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.447,
+        "Discouraging Hope": 0.408,
+        "Encouraging Hope": 0.804
+      },
+      "type": {
+        "Fading Hope": 0.216,
+        "Hopelessness": 0.473,
+        "Inspiring Hope": 0.632,
+        "Optimistic Hope": 0.455,
+        "Realistic Hope": 0.234
+      }
+    }
+  ],
+  "settings": {
+    "model": "cnn",
+    "task": "multi",
+    "train": "data/train_clean.csv",
+    "dev": "data/dev_multitask.csv",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "epochs": 30,
+    "patience": 6,
+    "batch_size": 64,
+    "lr": 0.001,
+    "smooth": 0.1
+  }
+}

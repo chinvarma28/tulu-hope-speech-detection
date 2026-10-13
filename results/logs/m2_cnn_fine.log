@@ -1,0 +1,117 @@
+model=cnn  task=fine  device=mps  seeds=[1, 2, 3, 4, 5]
+train=3365  dev=753  characters in vocabulary=141
+  seed 1  epoch  1  loss 1.7123  tone 0.159  type 0.366  selection 0.366
+  seed 1  epoch  2  loss 1.5373  tone 0.168  type 0.345  selection 0.345
+  seed 1  epoch  3  loss 1.4687  tone 0.181  type 0.404  selection 0.404
+  seed 1  epoch  4  loss 1.4272  tone 0.194  type 0.389  selection 0.389
+  seed 1  epoch  5  loss 1.3781  tone 0.210  type 0.412  selection 0.412
+  seed 1  epoch  6  loss 1.3391  tone 0.194  type 0.374  selection 0.374
+  seed 1  epoch  7  loss 1.3161  tone 0.185  type 0.397  selection 0.397
+  seed 1  epoch  8  loss 1.2890  tone 0.184  type 0.397  selection 0.397
+  seed 1  epoch  9  loss 1.2531  tone 0.210  type 0.380  selection 0.380
+  seed 1  epoch 10  loss 1.2399  tone 0.226  type 0.414  selection 0.414
+  seed 1  epoch 11  loss 1.2171  tone 0.204  type 0.398  selection 0.398
+  seed 1  epoch 12  loss 1.1873  tone 0.207  type 0.383  selection 0.383
+  seed 1  epoch 13  loss 1.1678  tone 0.227  type 0.420  selection 0.420
+  seed 1  epoch 14  loss 1.1440  tone 0.196  type 0.424  selection 0.424
+  seed 1  epoch 15  loss 1.1254  tone 0.235  type 0.420  selection 0.420
+  seed 1  epoch 16  loss 1.0960  tone 0.244  type 0.419  selection 0.419
+  seed 1  epoch 17  loss 1.1028  tone 0.237  type 0.394  selection 0.394
+  seed 1  epoch 18  loss 1.0717  tone 0.251  type 0.399  selection 0.399
+  seed 1  epoch 19  loss 1.0602  tone 0.228  type 0.401  selection 0.401
+  seed 1  epoch 20  loss 1.0332  tone 0.202  type 0.382  selection 0.382
+  stopping early: no improvement for 6 epochs
+  seed 2  epoch  1  loss 1.7325  tone 0.180  type 0.317  selection 0.317
+  seed 2  epoch  2  loss 1.5386  tone 0.161  type 0.361  selection 0.361
+  seed 2  epoch  3  loss 1.4571  tone 0.169  type 0.364  selection 0.364
+  seed 2  epoch  4  loss 1.4118  tone 0.183  type 0.342  selection 0.342
+  seed 2  epoch  5  loss 1.3859  tone 0.164  type 0.372  selection 0.372
+  seed 2  epoch  6  loss 1.3271  tone 0.169  type 0.374  selection 0.374
+  seed 2  epoch  7  loss 1.3163  tone 0.174  type 0.367  selection 0.367
+  seed 2  epoch  8  loss 1.2726  tone 0.172  type 0.356  selection 0.356
+  seed 2  epoch  9  loss 1.2592  tone 0.166  type 0.395  selection 0.395
+  seed 2  epoch 10  loss 1.2271  tone 0.174  type 0.398  selection 0.398
+  seed 2  epoch 11  loss 1.1967  tone 0.202  type 0.368  selection 0.368
+  seed 2  epoch 12  loss 1.1635  tone 0.191  type 0.379  selection 0.379
+  seed 2  epoch 13  loss 1.1334  tone 0.210  type 0.388  selection 0.388
+  seed 2  epoch 14  loss 1.1331  tone 0.212  type 0.381  selection 0.381
+  seed 2  epoch 15  loss 1.1154  tone 0.176  type 0.366  selection 0.366
+  seed 2  epoch 16  loss 1.0830  tone 0.206  type 0.396  selection 0.396
+  stopping early: no improvement for 6 epochs
+  seed 3  epoch  1  loss 1.7176  tone 0.160  type 0.314  selection 0.314
+  seed 3  epoch  2  loss 1.5539  tone 0.168  type 0.340  selection 0.340
+  seed 3  epoch  3  loss 1.4790  tone 0.122  type 0.349  selection 0.349
+  seed 3  epoch  4  loss 1.4174  tone 0.210  type 0.323  selection 0.323
+  seed 3  epoch  5  loss 1.3742  tone 0.268  type 0.366  selection 0.366
+  seed 3  epoch  6  loss 1.3497  tone 0.270  type 0.326  selection 0.326
+  seed 3  epoch  7  loss 1.3132  tone 0.299  type 0.380  selection 0.380
+  seed 3  epoch  8  loss 1.2996  tone 0.282  type 0.406  selection 0.406
+  seed 3  epoch  9  loss 1.2440  tone 0.281  type 0.390  selection 0.390
+  seed 3  epoch 10  loss 1.2209  tone 0.262  type 0.388  selection 0.388
+  seed 3  epoch 11  loss 1.1938  tone 0.247  type 0.398  selection 0.398
+  seed 3  epoch 12  loss 1.1793  tone 0.260  type 0.395  selection 0.395
+  seed 3  epoch 13  loss 1.1559  tone 0.241  type 0.419  selection 0.419
+  seed 3  epoch 14  loss 1.1359  tone 0.249  type 0.404  selection 0.404
+  seed 3  epoch 15  loss 1.1071  tone 0.245  type 0.398  selection 0.398
+  seed 3  epoch 16  loss 1.0882  tone 0.266  type 0.418  selection 0.418
+  seed 3  epoch 17  loss 1.0589  tone 0.289  type 0.382  selection 0.382
+  seed 3  epoch 18  loss 1.0457  tone 0.239  type 0.392  selection 0.392
+  seed 3  epoch 19  loss 1.0372  tone 0.244  type 0.394  selection 0.394
+  stopping early: no improvement for 6 epochs
+  seed 4  epoch  1  loss 1.7156  tone 0.135  type 0.280  selection 0.280
+  seed 4  epoch  2  loss 1.5392  tone 0.185  type 0.355  selection 0.355
+  seed 4  epoch  3  loss 1.4583  tone 0.133  type 0.332  selection 0.332
+  seed 4  epoch  4  loss 1.4096  tone 0.144  type 0.389  selection 0.389
+  seed 4  epoch  5  loss 1.3760  tone 0.195  type 0.375  selection 0.375
+  seed 4  epoch  6  loss 1.3449  tone 0.198  type 0.386  selection 0.386
+  seed 4  epoch  7  loss 1.2966  tone 0.200  type 0.394  selection 0.394
+  seed 4  epoch  8  loss 1.2646  tone 0.190  type 0.360  selection 0.360
+  seed 4  epoch  9  loss 1.2332  tone 0.167  type 0.367  selection 0.367
+  seed 4  epoch 10  loss 1.2162  tone 0.194  type 0.369  selection 0.369
+  seed 4  epoch 11  loss 1.1947  tone 0.202  type 0.351  selection 0.351
+  seed 4  epoch 12  loss 1.1689  tone 0.168  type 0.385  selection 0.385
+  seed 4  epoch 13  loss 1.1440  tone 0.181  type 0.388  selection 0.388
+  stopping early: no improvement for 6 epochs
+  seed 5  epoch  1  loss 1.6948  tone 0.307  type 0.300  selection 0.300
+  seed 5  epoch  2  loss 1.5372  tone 0.277  type 0.354  selection 0.354
+  seed 5  epoch  3  loss 1.4666  tone 0.252  type 0.352  selection 0.352
+  seed 5  epoch  4  loss 1.4292  tone 0.260  type 0.376  selection 0.376
+  seed 5  epoch  5  loss 1.3834  tone 0.251  type 0.361  selection 0.361
+  seed 5  epoch  6  loss 1.3496  tone 0.283  type 0.388  selection 0.388
+  seed 5  epoch  7  loss 1.3186  tone 0.301  type 0.372  selection 0.372
+  seed 5  epoch  8  loss 1.2900  tone 0.273  type 0.347  selection 0.347
+  seed 5  epoch  9  loss 1.2532  tone 0.273  type 0.389  selection 0.389
+  seed 5  epoch 10  loss 1.2286  tone 0.246  type 0.376  selection 0.376
+  seed 5  epoch 11  loss 1.2080  tone 0.278  type 0.372  selection 0.372
+  seed 5  epoch 12  loss 1.1781  tone 0.285  type 0.399  selection 0.399
+  seed 5  epoch 13  loss 1.1540  tone 0.286  type 0.367  selection 0.367
+  seed 5  epoch 14  loss 1.1475  tone 0.297  type 0.387  selection 0.387
+  seed 5  epoch 15  loss 1.1256  tone 0.271  type 0.405  selection 0.405
+  seed 5  epoch 16  loss 1.0879  tone 0.229  type 0.409  selection 0.409
+  seed 5  epoch 17  loss 1.0631  tone 0.256  type 0.388  selection 0.388
+  seed 5  epoch 18  loss 1.0539  tone 0.279  type 0.368  selection 0.368
+  seed 5  epoch 19  loss 1.0335  tone 0.301  type 0.376  selection 0.376
+  seed 5  epoch 20  loss 1.0198  tone 0.247  type 0.373  selection 0.373
+  seed 5  epoch 21  loss 1.0104  tone 0.258  type 0.408  selection 0.408
+  seed 5  epoch 22  loss 0.9973  tone 0.265  type 0.394  selection 0.394
+  stopping early: no improvement for 6 epochs
+
+================================================================
+cnn / fine   (5 seeds, 67s)
+  type (L2) macro F1 : 0.409 +/- 0.012
+  M1 floor to beat   : tone 0.579   type 0.400   joint 0.490
+================================================================
+Hope type, best seed:
+                 precision    recall  f1-score   support
+
+    Fading Hope      0.211     0.211     0.211        57
+   Hopelessness      0.500     0.606     0.548       213
+ Inspiring Hope      0.653     0.626     0.639       262
+Optimistic Hope      0.459     0.459     0.459        98
+ Realistic Hope      0.315     0.228     0.264       123
+
+       accuracy                          0.502       753
+      macro avg      0.428     0.426     0.424       753
+   weighted avg      0.496     0.502     0.496       753
+
+saved: results/m2_cnn_fine.json

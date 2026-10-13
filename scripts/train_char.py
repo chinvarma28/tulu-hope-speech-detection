@@ -312,7 +312,7 @@ def main():
     ap.add_argument("--task", choices=["multi", "coarse", "fine"], default="multi")
     ap.add_argument("--train", default="data/train_clean.csv")
     ap.add_argument("--dev", default="data/dev_multitask.csv")
-    ap.add_argument("--seeds", type=int, nargs="+", default=[1, 2, 3])  # nargs="+" = one or more
+    ap.add_argument("--seeds", type=int, nargs="+", default=[1, 2, 3, 4, 5])  # nargs="+" = one or more
     ap.add_argument("--epochs", type=int, default=30)
     ap.add_argument("--patience", type=int, default=6)
     ap.add_argument("--batch_size", type=int, default=64)
@@ -360,13 +360,36 @@ def main():
         print("Hope type, best seed:")
         print(classification_report(tf, pf, target_names=list(f2i), digits=3, zero_division=0))
 
+    # Per-class F1 for EVERY seed (not just the best one), so we can spot a class
+    # that collapses to 0.000 in any seed. average=None gives one F1 per class.
+    # A single-task model's other head was never trained, so its score means nothing.
+    # We store None (shown as null in the .json) instead of a misleading number.
+    trained_tone = args.task in ("multi", "coarse")
+    trained_type = args.task in ("multi", "fine")
+
+    per_class = []
+    for r in runs:
+        tc, pc, tf, pf = r["preds"]
+        seed_result = {}
+        if trained_tone:
+            scores = f1_score(tc, pc, labels=list(range(len(c2i))), average=None, zero_division=0)
+            seed_result["tone"] = dict(zip(c2i, scores.round(3).tolist()))
+        if trained_type:
+            scores = f1_score(tf, pf, labels=list(range(len(f2i))), average=None, zero_division=0)
+            seed_result["type"] = dict(zip(f2i, scores.round(3).tolist()))
+        # zip(a, b) pairs items up: ("Blended Hope", 0.51), ...; dict() turns the pairs into a dictionary.
+        per_class.append(seed_result)
+
     Path("results").mkdir(exist_ok=True)
     out = Path("results") / f"m2_{args.model}_{args.task}.json"
     out.write_text(json.dumps({
         "model": args.model, "task": args.task, "seeds": args.seeds,
-        "tone_mean": float(cs.mean()), "tone_std": float(cs.std()),
-        "type_mean": float(fs.mean()), "type_std": float(fs.std()),
+        "tone_mean": float(cs.mean()) if trained_tone else None,
+        "tone_std": float(cs.std()) if trained_tone else None,
+        "type_mean": float(fs.mean()) if trained_type else None,
+        "type_std": float(fs.std()) if trained_type else None,
         "best_epochs": [r["epoch"] for r in runs],
+        "per_class_f1_by_seed": per_class,
         "settings": vars(args),
     }, indent=2))
     print(f"saved: {out}")

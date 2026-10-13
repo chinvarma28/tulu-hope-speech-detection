@@ -1,0 +1,77 @@
+{
+  "model": "cnn",
+  "task": "coarse",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "tone_mean": 0.5580469002340513,
+  "tone_std": 0.013036310022385974,
+  "type_mean": null,
+  "type_std": null,
+  "best_epochs": [
+    16,
+    19,
+    25,
+    12,
+    19
+  ],
+  "per_class_f1_by_seed": [
+    {
+      "tone": {
+        "Blended Hope": 0.498,
+        "Discouraging Hope": 0.335,
+        "Encouraging Hope": 0.793
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.466,
+        "Discouraging Hope": 0.444,
+        "Encouraging Hope": 0.809
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.504,
+        "Discouraging Hope": 0.414,
+        "Encouraging Hope": 0.803
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.39,
+        "Discouraging Hope": 0.456,
+        "Encouraging Hope": 0.806
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.421,
+        "Discouraging Hope": 0.437,
+        "Encouraging Hope": 0.796
+      }
+    }
+  ],
+  "settings": {
+    "model": "cnn",
+    "task": "coarse",
+    "train": "data/train_clean.csv",
+    "dev": "data/dev_multitask.csv",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "epochs": 30,
+    "patience": 6,
+    "batch_size": 64,
+    "lr": 0.001,
+    "smooth": 0.1
+  }
+}
