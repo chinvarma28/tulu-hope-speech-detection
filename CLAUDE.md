@@ -3,8 +3,11 @@ MTech Deep Learning course project (IT702), NITK Surathkal.
 
 ## How to work with us
 - We are learning. We are not Python experts.
-- Work in small steps. After each step, stop so we can run it ourselves.
+- You may run the scripts, read their output and fix errors yourself.
+- Work in small steps. After each step, summarise what you ran and what the result means.
+- Before training anything that takes more than about 10 minutes, tell us and wait for a go-ahead.
 - For every change, explain what it does and why.
+- Commit to git after each working step, with a clear message. Never commit anything in `data/` or `.venv/`.
 - Explain any Python syntax that a beginner might not know.
 - Prefer simple, readable code over clever or compact code.
 - Never delete or overwrite data files.
