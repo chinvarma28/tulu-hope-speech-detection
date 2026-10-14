@@ -102,6 +102,11 @@ class MultiTaskHope(nn.Module):
         super().__init__()
         self.encoder = AutoModel.from_pretrained(model_name)   # downloads MuRIL the first time
         h = self.encoder.config.hidden_size                     # 768 for MuRIL-base
+        # MuRIL's output vectors are almost identical for every comment (cosine
+        # similarity ~0.99): one or two of the 768 numbers are large, and the rest are
+        # tiny. BatchNorm rescales each of the 768 numbers to mean 0 and spread 1 across
+        # the batch, so the small differences between comments reach the heads.
+        self.norm = nn.BatchNorm1d(h)
         self.dropout = nn.Dropout(dropout)
         self.head_coarse = nn.Linear(h, n_coarse)
         self.head_fine = nn.Linear(h, n_fine)
@@ -112,6 +117,7 @@ class MultiTaskHope(nn.Module):
         # them (ignoring padding) into one vector for the whole comment.
         mask = attention_mask.unsqueeze(-1).float()       # unsqueeze adds an axis so shapes line up
         pooled = (out.last_hidden_state * mask).sum(1) / mask.sum(1).clamp(min=1e-9)
+        pooled = self.norm(pooled)
         pooled = self.dropout(pooled)
         return self.head_coarse(pooled), self.head_fine(pooled)
 
@@ -232,7 +238,9 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
     # Two "parameter groups" with their own learning rates: MuRIL is already trained,
     # so it gets small, careful updates (--lr). The two heads start as random numbers,
     # so they get a larger learning rate (--head_lr) to learn quickly.
-    head_params = list(model.head_coarse.parameters()) + list(model.head_fine.parameters())
+    # The norm layer is new too (not part of MuRIL), so it trains with the heads.
+    head_params = (list(model.norm.parameters()) + list(model.head_coarse.parameters())
+                   + list(model.head_fine.parameters()))
     head_lr = args.head_lr if args.head_lr is not None else args.lr
     opt = torch.optim.AdamW([
         {"params": model.encoder.parameters(), "lr": args.lr},
@@ -321,8 +329,8 @@ def main():
     ap.add_argument("--epochs", type=int, default=5)
     ap.add_argument("--batch_size", type=int, default=16)
     ap.add_argument("--lr", type=float, default=2e-5)        # 2e-5 = 0.00002, typical for BERT
-    ap.add_argument("--head_lr", type=float, default=None,
-                    help="learning rate for the two heads (default: same as --lr)")
+    ap.add_argument("--head_lr", type=float, default=1e-3,
+                    help="learning rate for the norm layer and the two heads")
     ap.add_argument("--max_len", type=int, default=64)       # word pieces; p95 comment is 13 words
     ap.add_argument("--smooth", type=float, default=0.1)
     ap.add_argument("--mask", choices=["none", "empirical", "official"], default="none",
