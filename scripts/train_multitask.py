@@ -229,7 +229,15 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
     lam = {"multi": 0.5, "coarse": 1.0, "fine": 0.0}[args.task]
 
     # AdamW = Adam + weight decay, the standard optimiser for fine-tuning BERT models.
-    opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
+    # Two "parameter groups" with their own learning rates: MuRIL is already trained,
+    # so it gets small, careful updates (--lr). The two heads start as random numbers,
+    # so they get a larger learning rate (--head_lr) to learn quickly.
+    head_params = list(model.head_coarse.parameters()) + list(model.head_fine.parameters())
+    head_lr = args.head_lr if args.head_lr is not None else args.lr
+    opt = torch.optim.AdamW([
+        {"params": model.encoder.parameters(), "lr": args.lr},
+        {"params": head_params, "lr": head_lr},
+    ], weight_decay=0.01)
     # The learning rate rises from 0 over the first 10% of steps ("warmup"), then
     # falls linearly to 0. This stops the first updates from wrecking MuRIL's knowledge.
     total_steps = len(train_dl) * args.epochs
@@ -313,6 +321,8 @@ def main():
     ap.add_argument("--epochs", type=int, default=5)
     ap.add_argument("--batch_size", type=int, default=16)
     ap.add_argument("--lr", type=float, default=2e-5)        # 2e-5 = 0.00002, typical for BERT
+    ap.add_argument("--head_lr", type=float, default=None,
+                    help="learning rate for the two heads (default: same as --lr)")
     ap.add_argument("--max_len", type=int, default=64)       # word pieces; p95 comment is 13 words
     ap.add_argument("--smooth", type=float, default=0.1)
     ap.add_argument("--mask", choices=["none", "empirical", "official"], default="none",
