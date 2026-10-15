@@ -1,0 +1,84 @@
+{
+  "model": "google/muril-base-cased",
+  "task": "coarse",
+  "mask": "none",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "tone_mean": 0.5512229996601674,
+  "tone_std": 0.01472945329809771,
+  "type_mean": null,
+  "type_std": null,
+  "best_epochs": [
+    4,
+    4,
+    3,
+    5,
+    4
+  ],
+  "per_class_f1_by_seed": [
+    {
+      "tone": {
+        "Blended Hope": 0.466,
+        "Discouraging Hope": 0.355,
+        "Encouraging Hope": 0.8
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.403,
+        "Discouraging Hope": 0.464,
+        "Encouraging Hope": 0.81
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.419,
+        "Discouraging Hope": 0.413,
+        "Encouraging Hope": 0.778
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.409,
+        "Discouraging Hope": 0.417,
+        "Encouraging Hope": 0.807
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.476,
+        "Discouraging Hope": 0.422,
+        "Encouraging Hope": 0.83
+      }
+    }
+  ],
+  "settings": {
+    "task": "coarse",
+    "model": "google/muril-base-cased",
+    "train": "/kaggle/input/datasets/chinmayavittalvarma/training-1/train_clean.csv",
+    "dev": "/kaggle/input/datasets/chinmayavittalvarma/training-1/dev_multitask.csv",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "epochs": 5,
+    "batch_size": 16,
+    "lr": 2e-05,
+    "head_lr": 0.001,
+    "max_len": 64,
+    "smooth": 0.1,
+    "mask": "none",
+    "device": "auto",
+    "out_dir": "/kaggle/working/m3_outputs/results",
+    "ckpt_dir": "/kaggle/working/m3_outputs/checkpoints",
+    "save_weights": false
+  }
+}
