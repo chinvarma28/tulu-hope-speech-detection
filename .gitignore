@@ -20,3 +20,6 @@ data/
 
 # Mac system junk
 .DS_Store
+
+# Throwaway output from live demos
+demo/
