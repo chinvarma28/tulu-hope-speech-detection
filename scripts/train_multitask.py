@@ -1,5 +1,5 @@
 """
-train_multitask.py -- Phase 3 (M3): a pretrained MuRIL encoder + two heads.
+train_multitask.py -- Phase 3 (M3) and Phase 4 (M4): a pretrained MuRIL encoder.
 
 MuRIL is a BERT-style model that Google pretrained on 17 Indian languages,
 including romanised (Latin-script) text. Instead of learning language from our
@@ -9,10 +9,14 @@ Run from the main project folder (tulu-hope-speech), with .venv active:
     python scripts/train_multitask.py --task multi
     python scripts/train_multitask.py --task coarse
     python scripts/train_multitask.py --task fine
+    python scripts/train_multitask.py --task pairs
 
---task multi   one shared encoder, two heads, both losses   (multi-task)
---task coarse  only the tone head is trained                (single-task control)
---task fine    only the hope-type head is trained           (single-task control)
+--task multi   M3: one shared encoder, two heads, both losses   (multi-task)
+--task coarse  M3: only the tone head is trained                (single-task control)
+--task fine    M3: only the hope-type head is trained           (single-task control)
+--task pairs   M4: ONE head with one output per (tone, type) pair seen in training
+               (14 pairs). The predicted pair is split back into a tone and a type,
+               so M4 is scored exactly like M3.
 
 MuRIL is large (about 240 million weights), so the real runs happen on Kaggle:
 see notebooks/m3_muril_kaggle.ipynb.
@@ -113,13 +117,38 @@ class MultiTaskHope(nn.Module):
 
     def forward(self, input_ids, attention_mask):
         out = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
-        # MuRIL gives one 768-number vector per word piece. "Mean pooling" averages
-        # them (ignoring padding) into one vector for the whole comment.
-        mask = attention_mask.unsqueeze(-1).float()       # unsqueeze adds an axis so shapes line up
-        pooled = (out.last_hidden_state * mask).sum(1) / mask.sum(1).clamp(min=1e-9)
+        pooled = mean_pool(out.last_hidden_state, attention_mask)
         pooled = self.norm(pooled)
         pooled = self.dropout(pooled)
         return self.head_coarse(pooled), self.head_fine(pooled)
+
+
+class PairHope(nn.Module):
+    """M4: the same MuRIL encoder, BatchNorm and dropout as MultiTaskHope, but only
+    ONE head. It has one output per (tone, type) pair seen in training, so it can
+    never predict a pair that does not occur (e.g. Discouraging + Optimistic)."""
+
+    def __init__(self, model_name, n_pairs, dropout=0.2):
+        super().__init__()
+        self.encoder = AutoModel.from_pretrained(model_name)
+        h = self.encoder.config.hidden_size
+        self.norm = nn.BatchNorm1d(h)       # same fix as in MultiTaskHope
+        self.dropout = nn.Dropout(dropout)
+        self.head_pair = nn.Linear(h, n_pairs)
+
+    def forward(self, input_ids, attention_mask):
+        out = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
+        pooled = mean_pool(out.last_hidden_state, attention_mask)
+        pooled = self.norm(pooled)
+        pooled = self.dropout(pooled)
+        return self.head_pair(pooled)       # shape (batch, n_pairs)
+
+
+def mean_pool(last_hidden_state, attention_mask):
+    """MuRIL gives one 768-number vector per word piece. "Mean pooling" averages
+    them (ignoring padding) into one vector for the whole comment."""
+    mask = attention_mask.unsqueeze(-1).float()       # unsqueeze adds an axis so shapes line up
+    return (last_hidden_state * mask).sum(1) / mask.sum(1).clamp(min=1e-9)
 
 
 # ==========================================================================
@@ -167,6 +196,34 @@ def decode(logit_c, logit_f, valid_mask=None):
 
 
 # ==========================================================================
+# PART 3b. THE PAIR LABELS FOR M4 (--task pairs)
+# ==========================================================================
+
+def build_pairs(df, c2i, f2i):
+    """List the (tone, type) pairs that occur in the TRAINING data.
+    Returns:
+      pairs   : an array with one row per pair: [tone index, type index]
+      pair_id : a (3 x 5) table; pair_id[tone, type] = that pair's number, or -1 if unseen
+      names   : readable names, e.g. "Blended Hope + Fading Hope"
+    """
+    # set() keeps each pair once; sorted() puts them in a fixed order, so the
+    # pair numbers are the same in every run.
+    seen = sorted(set(zip(df[COARSE], df[FINE])))
+    pairs = np.array([[c2i[c], f2i[f]] for c, f in seen])
+    pair_id = torch.full((len(c2i), len(f2i)), -1, dtype=torch.long)   # filled with -1
+    for k, (c, f) in enumerate(pairs):      # enumerate gives (0, first), (1, second), ...
+        pair_id[c, f] = k
+    names = [f"{c} + {f}" for c, f in seen]
+    return pairs, pair_id, names
+
+
+def decode_pairs(logit_p, pairs):
+    """Pick the highest-scoring pair, then split it back into (tone, type)."""
+    best = logit_p.argmax(1).cpu().numpy()
+    return pairs[best, 0], pairs[best, 1]
+
+
+# ==========================================================================
 # PART 4. TRAINING AND EVALUATION
 # ==========================================================================
 
@@ -195,12 +252,17 @@ def class_weights(labels, n, device):
 
 
 @torch.no_grad()
-def evaluate(model, loader, device, valid_mask=None):
+def evaluate(model, loader, device, valid_mask=None, pairs=None):
+    """pairs=None: M3 (two heads). Otherwise M4: the pair table from build_pairs."""
     model.eval()                     # dropout OFF
     tc, pc, tf, pf = [], [], [], []
     for ids, att, y_c, y_f in loader:
-        logit_c, logit_f = model(ids.to(device), att.to(device))
-        a, b = decode(logit_c, logit_f, valid_mask)
+        if pairs is None:
+            logit_c, logit_f = model(ids.to(device), att.to(device))
+            a, b = decode(logit_c, logit_f, valid_mask)
+        else:
+            logit_p = model(ids.to(device), att.to(device))
+            a, b = decode_pairs(logit_p, pairs)
         pc += a.tolist()             # .tolist() turns numpy numbers into plain Python ints
         pf += b.tolist()
         tc += y_c.tolist()
@@ -221,7 +283,14 @@ def selection_score(task, f1c, f1f):
 
 def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
     set_seed(seed)
-    model = MultiTaskHope(args.model, len(c2i), len(f2i)).to(device)
+    is_pairs = args.task == "pairs"          # True for M4, False for M3
+
+    if is_pairs:
+        pairs, pair_id, _ = build_pairs(train_df, c2i, f2i)
+        model = PairHope(args.model, len(pairs)).to(device)
+    else:
+        pairs = None
+        model = MultiTaskHope(args.model, len(c2i), len(f2i)).to(device)
 
     train_dl = DataLoader(HopeDataset(train_df, tok, c2i, f2i, args.max_len),
                           batch_size=args.batch_size, shuffle=True)
@@ -232,15 +301,25 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
     w_f = class_weights([f2i[x] for x in train_df[FINE]], len(f2i), device)
     loss_c = nn.CrossEntropyLoss(weight=w_c, label_smoothing=args.smooth)
     loss_f = nn.CrossEntropyLoss(weight=w_f, label_smoothing=args.smooth)
-    lam = {"multi": 0.5, "coarse": 1.0, "fine": 0.0}[args.task]
+    if is_pairs:
+        # Each training comment's pair number. pair_id[tone_list, type_list] looks up
+        # every comment at once (PyTorch "advanced indexing").
+        train_c = torch.tensor([c2i[x] for x in train_df[COARSE]])
+        train_f = torch.tensor([f2i[x] for x in train_df[FINE]])
+        w_p = class_weights(pair_id[train_c, train_f].numpy(), len(pairs), device)
+        loss_p = nn.CrossEntropyLoss(weight=w_p, label_smoothing=args.smooth)
+    else:
+        lam = {"multi": 0.5, "coarse": 1.0, "fine": 0.0}[args.task]
 
     # AdamW = Adam + weight decay, the standard optimiser for fine-tuning BERT models.
     # Two "parameter groups" with their own learning rates: MuRIL is already trained,
-    # so it gets small, careful updates (--lr). The two heads start as random numbers,
+    # so it gets small, careful updates (--lr). The heads start as random numbers,
     # so they get a larger learning rate (--head_lr) to learn quickly.
     # The norm layer is new too (not part of MuRIL), so it trains with the heads.
-    head_params = (list(model.norm.parameters()) + list(model.head_coarse.parameters())
-                   + list(model.head_fine.parameters()))
+    # named_parameters() gives (name, weights) for every layer; everything whose name
+    # does not start with "encoder." is new (norm + heads).
+    head_params = [p for name, p in model.named_parameters()
+                   if not name.startswith("encoder.")]
     head_lr = args.head_lr if args.head_lr is not None else args.lr
     opt = torch.optim.AdamW([
         {"params": model.encoder.parameters(), "lr": args.lr},
@@ -260,9 +339,14 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
         model.train()                # dropout ON
         total = 0.0
         for ids, att, y_c, y_f in train_dl:
-            logit_c, logit_f = model(ids.to(device), att.to(device))
-            loss = (lam * loss_c(logit_c, y_c.to(device))
-                    + (1 - lam) * loss_f(logit_f, y_f.to(device)))
+            if is_pairs:
+                logit_p = model(ids.to(device), att.to(device))
+                y_p = pair_id[y_c, y_f]      # (tone, type) -> pair number, for the batch
+                loss = loss_p(logit_p, y_p.to(device))
+            else:
+                logit_c, logit_f = model(ids.to(device), att.to(device))
+                loss = (lam * loss_c(logit_c, y_c.to(device))
+                        + (1 - lam) * loss_f(logit_f, y_f.to(device)))
             opt.zero_grad()
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -270,7 +354,7 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
             sched.step()             # move the learning rate one step along its schedule
             total += loss.item()
 
-        f1c, f1f, preds = evaluate(model, dev_dl, device, valid_mask)
+        f1c, f1f, preds = evaluate(model, dev_dl, device, valid_mask, pairs)
         score = selection_score(args.task, f1c, f1f)
         print(f"  seed {seed}  epoch {epoch}  loss {total / len(train_dl):.4f}  "
               f"tone {f1c:.3f}  type {f1f:.3f}  selection {score:.3f}", flush=True)
@@ -289,9 +373,11 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
 # ==========================================================================
 
 def run_name(args):
-    """e.g. 'm3_muril-base-cased_multi', plus '_mask-empirical' if a mask is used."""
+    """e.g. 'm3_muril-base-cased_multi', plus '_mask-empirical' if a mask is used.
+    The pair model is M4: 'm4_muril-base-cased_pairs'."""
     short = args.model.split("/")[-1]             # "google/muril-base-cased" -> "muril-base-cased"
-    name = f"m3_{short}_{args.task}"
+    phase = "m4" if args.task == "pairs" else "m3"
+    name = f"{phase}_{short}_{args.task}"
     if args.mask != "none" and args.task == "multi":
         name += f"_mask-{args.mask}"
     return name
@@ -321,7 +407,7 @@ def run_or_resume_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--task", choices=["multi", "coarse", "fine"], default="multi")
+    ap.add_argument("--task", choices=["multi", "coarse", "fine", "pairs"], default="multi")
     ap.add_argument("--model", default="google/muril-base-cased")
     ap.add_argument("--train", default="data/train_clean.csv")
     ap.add_argument("--dev", default="data/dev_multitask.csv")
@@ -354,6 +440,15 @@ def main():
     report_violations(train_df, "train")
     report_violations(dev_df, "dev")
 
+    pair_names = None
+    if args.task == "pairs":
+        pairs, pair_id, pair_names = build_pairs(train_df, c2i, f2i)
+        train_counts = pd.Series(list(zip(train_df[COARSE], train_df[FINE]))).value_counts()
+        print(f"M4: one head over the {len(pairs)} (tone, type) pairs seen in training:")
+        for k, name in enumerate(pair_names):
+            c, f = name.split(" + ")
+            print(f"  {k:2d}  {name:38s} {train_counts[(c, f)]:5d} training comments")
+
     tok = AutoTokenizer.from_pretrained(args.model)
 
     start = time.time()
@@ -362,8 +457,8 @@ def main():
 
     cs = np.array([r["f1c"] for r in runs])
     fs = np.array([r["f1f"] for r in runs])
-    trained_tone = args.task in ("multi", "coarse")
-    trained_type = args.task in ("multi", "fine")
+    trained_tone = args.task in ("multi", "coarse", "pairs")
+    trained_type = args.task in ("multi", "fine", "pairs")
 
     print("\n" + "=" * 64)
     print(f"{run_name(args)}   ({len(runs)} seeds, {time.time() - start:.0f}s)")
@@ -371,7 +466,7 @@ def main():
         print(f"  tone (L1) macro F1 : {cs.mean():.3f} +/- {cs.std():.3f}")
     if trained_type:
         print(f"  type (L2) macro F1 : {fs.mean():.3f} +/- {fs.std():.3f}")
-    if args.task == "multi":
+    if trained_tone and trained_type:
         print(f"  JOINT SCORE        : {(cs.mean() + fs.mean()) / 2:.3f}")
     print("  M1 floor to beat   : tone 0.579   type 0.400   joint 0.490")
     print("=" * 64)
@@ -386,6 +481,15 @@ def main():
         print("Hope type, best seed:")
         print(classification_report(tf, pf, labels=list(range(len(f2i))),
                                     target_names=list(f2i), digits=3, zero_division=0))
+    if args.task == "pairs":
+        # How often the best seed predicts each pair on dev, next to the true count.
+        # Shows whether the tiny pairs (1-3 training comments) are over-predicted.
+        i2c, i2f = list(c2i), list(f2i)
+        true_counts = pd.Series([f"{i2c[c]} + {i2f[f]}" for c, f in zip(tc, tf)]).value_counts()
+        pred_counts = pd.Series([f"{i2c[c]} + {i2f[f]}" for c, f in zip(pc, pf)]).value_counts()
+        print("Pairs on dev, best seed (true count / predicted count):")
+        for name in pair_names:
+            print(f"  {name:38s} {true_counts.get(name, 0):4d} / {pred_counts.get(name, 0):4d}")
 
     # Per-class F1 for every seed, to catch a class stuck at 0.000 in any seed.
     per_class = []
@@ -410,6 +514,7 @@ def main():
         "type_std": float(fs.std()) if trained_type else None,
         "best_epochs": [r["epoch"] for r in runs],
         "per_class_f1_by_seed": per_class,
+        "pairs": pair_names,                 # None for M3; the 14 pair names for M4
         "settings": vars(args),
     }, indent=2))
     print(f"saved: {out}")
