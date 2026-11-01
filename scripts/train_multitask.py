@@ -17,6 +17,8 @@ Run from the main project folder (tulu-hope-speech), with .venv active:
 --task pairs   M4: ONE head with one output per (tone, type) pair seen in training
                (14 pairs). The predicted pair is split back into a tone and a type,
                so M4 is scored exactly like M3.
+               --pair_weights sqrt (default) or product: how the pairs are weighted
+               in the loss, e.g.  --task pairs --pair_weights product --epochs 8
 
 MuRIL is large (about 240 million weights), so the real runs happen on Kaggle:
 see notebooks/m3_muril_kaggle.ipynb.
@@ -217,6 +219,23 @@ def build_pairs(df, c2i, f2i):
     return pairs, pair_id, names
 
 
+def pair_weights(train_df, c2i, f2i, pairs, pair_id, mode):
+    """Loss weight for each of the pairs (a numpy array, one number per pair).
+    'sqrt'    : weight from how rare the PAIR is (same formula as class_weights).
+                A pair with 1 training comment gets ~33x the weight of the largest pair.
+    'product' : tone weight x type weight. Follows how rare the tone and the type are,
+                which is what macro F1 scores; tiny pairs get only ~1-2x."""
+    c_labels = [c2i[x] for x in train_df[COARSE]]
+    f_labels = [f2i[x] for x in train_df[FINE]]
+    if mode == "sqrt":
+        p_labels = pair_id[torch.tensor(c_labels), torch.tensor(f_labels)].numpy()
+        return class_weights(p_labels, len(pairs), "cpu").numpy()
+    w_c = class_weights(c_labels, len(c2i), "cpu").numpy()
+    w_f = class_weights(f_labels, len(f2i), "cpu").numpy()
+    # pairs[:, 0] is the tone of every pair, pairs[:, 1] the type ("[:, 0]" = column 0).
+    return w_c[pairs[:, 0]] * w_f[pairs[:, 1]]
+
+
 def decode_pairs(logit_p, pairs):
     """Pick the highest-scoring pair, then split it back into (tone, type)."""
     best = logit_p.argmax(1).cpu().numpy()
@@ -302,11 +321,8 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
     loss_c = nn.CrossEntropyLoss(weight=w_c, label_smoothing=args.smooth)
     loss_f = nn.CrossEntropyLoss(weight=w_f, label_smoothing=args.smooth)
     if is_pairs:
-        # Each training comment's pair number. pair_id[tone_list, type_list] looks up
-        # every comment at once (PyTorch "advanced indexing").
-        train_c = torch.tensor([c2i[x] for x in train_df[COARSE]])
-        train_f = torch.tensor([f2i[x] for x in train_df[FINE]])
-        w_p = class_weights(pair_id[train_c, train_f].numpy(), len(pairs), device)
+        w_p = pair_weights(train_df, c2i, f2i, pairs, pair_id, args.pair_weights)
+        w_p = torch.tensor(w_p, dtype=torch.float, device=device)
         loss_p = nn.CrossEntropyLoss(weight=w_p, label_smoothing=args.smooth)
     else:
         lam = {"multi": 0.5, "coarse": 1.0, "fine": 0.0}[args.task]
@@ -380,12 +396,23 @@ def run_name(args):
     name = f"{phase}_{short}_{args.task}"
     if args.mask != "none" and args.task == "multi":
         name += f"_mask-{args.mask}"
+    # Non-default settings go into the name, so a new run never overwrites an old one,
+    # e.g. 'm4_muril-base-cased_pairs_w-product_ep8'.
+    if args.task == "pairs" and args.pair_weights != "sqrt":
+        name += f"_w-{args.pair_weights}"
+    if args.epochs != 5:
+        name += f"_ep{args.epochs}"
     return name
 
 
 def checkpoint_settings(args):
     ignore = ("seeds", "device", "out_dir", "ckpt_dir", "save_weights")
-    return {k: v for k, v in vars(args).items() if k not in ignore}
+    settings = {k: v for k, v in vars(args).items() if k not in ignore}
+    # --pair_weights was added after the M3 and first M4 runs. Leave it out when it has
+    # its default value, so those older checkpoints still match and are not retrained.
+    if settings["pair_weights"] == "sqrt":
+        del settings["pair_weights"]
+    return settings
 
 
 def run_or_resume_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
@@ -421,6 +448,8 @@ def main():
     ap.add_argument("--smooth", type=float, default=0.1)
     ap.add_argument("--mask", choices=["none", "empirical", "official"], default="none",
                     help="multi-task only: restrict predictions to allowed (tone, type) pairs")
+    ap.add_argument("--pair_weights", choices=["sqrt", "product"], default="sqrt",
+                    help="--task pairs only: how the loss weights the pairs (see pair_weights())")
     ap.add_argument("--device", choices=["auto", "cpu", "mps", "cuda"], default="auto")
     ap.add_argument("--out_dir", default="results")
     ap.add_argument("--ckpt_dir", default="checkpoints")
@@ -444,10 +473,13 @@ def main():
     if args.task == "pairs":
         pairs, pair_id, pair_names = build_pairs(train_df, c2i, f2i)
         train_counts = pd.Series(list(zip(train_df[COARSE], train_df[FINE]))).value_counts()
-        print(f"M4: one head over the {len(pairs)} (tone, type) pairs seen in training:")
+        w_p = pair_weights(train_df, c2i, f2i, pairs, pair_id, args.pair_weights)
+        print(f"M4: one head over the {len(pairs)} (tone, type) pairs seen in training "
+              f"(pair weights: {args.pair_weights}):")
         for k, name in enumerate(pair_names):
             c, f = name.split(" + ")
-            print(f"  {k:2d}  {name:38s} {train_counts[(c, f)]:5d} training comments")
+            print(f"  {k:2d}  {name:38s} {train_counts[(c, f)]:5d} training comments"
+                  f"   loss weight {w_p[k]:.2f}")
 
     tok = AutoTokenizer.from_pretrained(args.model)
 
