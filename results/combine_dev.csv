@@ -1,0 +1,6 @@
+system,kind,n_seeds,tone,tone_std,type,type_std,joint,joint_std
+M1,"single, per seed",1.0,0.5787,0.0,0.3998,0.0,0.4893,0.0
+CNN,"single, per seed",5.0,0.5477,0.019,0.4115,0.0112,0.4796,0.0089
+CNN,"single, seed-averaged",5.0,0.5574,,0.4261,,0.4918,
+M1 + CNN,"combination, all seeds",,0.5792,,0.4209,,0.5,
+M1 + CNN,"combination, per seed",5.0,0.5761,0.0079,0.4183,0.0119,0.4972,0.0069
