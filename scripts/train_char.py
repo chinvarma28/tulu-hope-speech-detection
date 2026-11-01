@@ -17,6 +17,9 @@ Run from the main project folder (tulu-hope-speech), with .venv active:
 
 Each seed's best model is saved to checkpoints/ (change with --ckpt_dir). Running
 the same command again skips seeds that are already finished.
+
+--test data/multitask_test_withoutlabel.csv  also saves class probabilities (dev and the
+UNLABELLED test file) at each seed's best dev epoch, in results/probs/ (format: probs_io.py).
 The BiLSTM is slow on the Mac; notebooks/m2_bilstm_kaggle.ipynb runs it on a Kaggle GPU.
 
 Requires: torch, pandas, scikit-learn
@@ -39,6 +42,8 @@ import torch
 import torch.nn as nn    # "nn" holds the neural-network building blocks (layers)
 from sklearn.metrics import classification_report, f1_score
 from torch.utils.data import DataLoader, Dataset
+
+from probs_io import load_unlabelled, write_probs   # probs_io.py, in the same folder
 
 # Column names in the CSV files. Defined once so a typo can't creep in later.
 COARSE = "Coarse-Grained"
@@ -250,6 +255,22 @@ def evaluate(model, loader, device):
     return f1c, f1f, (tc, pc, tf, pf)
 
 
+@torch.no_grad()
+def predict_probs(model, loader, device):
+    """Class probabilities and predicted classes for every comment in the loader.
+    Everything is kept as plain Python lists, which can be stored in a checkpoint."""
+    model.eval()
+    prob_c, prob_f = [], []
+    for x, lengths, _, _ in loader:             # the labels are not needed here
+        logit_c, logit_f, _ = model(x.to(device), lengths)
+        # softmax turns raw scores into probabilities that add up to 1.
+        prob_c += torch.softmax(logit_c, dim=1).cpu().tolist()
+        prob_f += torch.softmax(logit_f, dim=1).cpu().tolist()
+    return {"prob_c": prob_c, "prob_f": prob_f,
+            "pred_c": [int(np.argmax(p)) for p in prob_c],   # highest probability
+            "pred_f": [int(np.argmax(p)) for p in prob_f]}
+
+
 def selection_score(task, f1c, f1f):
     """Which number decides the "best" epoch. For a single-task model we only
     look at the head that was actually trained -- the untrained head is random."""
@@ -260,13 +281,17 @@ def selection_score(task, f1c, f1f):
     return (f1c + f1f) / 2           # multi-task: the official Joint Score
 
 
-def run_one_seed(args, train_df, dev_df, vocab, c2i, f2i, seed, device):
+def run_one_seed(args, train_df, dev_df, test_df, vocab, c2i, f2i, seed, device):
     set_seed(seed)
     train_ds = CharDataset(train_df, vocab, c2i, f2i)
     dev_ds = CharDataset(dev_df, vocab, c2i, f2i)
     # A DataLoader hands out the data in batches; shuffle=True mixes the order every epoch.
     train_dl = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, collate_fn=collate)
     dev_dl = DataLoader(dev_ds, batch_size=256, shuffle=False, collate_fn=collate)
+    test_dl = None
+    if test_df is not None:   # only when --test is given
+        test_dl = DataLoader(CharDataset(test_df, vocab, c2i, f2i), batch_size=256,
+                             shuffle=False, collate_fn=collate)
 
     Model = CharCNN if args.model == "cnn" else BiLSTMAttention
     model = Model(len(vocab), len(c2i), len(f2i)).to(device)   # .to(device) moves it to the GPU
@@ -310,6 +335,10 @@ def run_one_seed(args, train_df, dev_df, vocab, c2i, f2i, seed, device):
             weights = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
             best = {"score": score, "f1c": f1c, "f1f": f1f, "epoch": epoch, "preds": preds,
                     "weights": weights}
+            if test_dl is not None:
+                # Probabilities from this best epoch, for combining models later.
+                best["probs"] = {"dev": predict_probs(model, dev_dl, device),
+                                 "test": predict_probs(model, test_dl, device)}
             bad_epochs = 0
         else:
             bad_epochs += 1
@@ -333,20 +362,25 @@ def checkpoint_path(args, seed):
 def checkpoint_settings(args):
     """The settings that change what gets trained. A saved checkpoint is only
     reused if these match exactly; otherwise that seed is trained again."""
-    ignore = ("seeds", "device", "out_dir", "ckpt_dir")   # these don't change the model
+    # These don't change the model, so they are left out.
+    ignore = ("seeds", "device", "out_dir", "ckpt_dir", "test", "probs_dir")
     return {k: v for k, v in vars(args).items() if k not in ignore}
 
 
-def run_or_resume_seed(args, train_df, dev_df, vocab, c2i, f2i, seed, device):
+def run_or_resume_seed(args, train_df, dev_df, test_df, vocab, c2i, f2i, seed, device):
     path = checkpoint_path(args, seed)
     if path.exists():
         saved = torch.load(path, weights_only=True)
-        if saved["settings"] == checkpoint_settings(args):
+        same = saved["settings"] == checkpoint_settings(args)
+        # With --test we also need the probabilities; older checkpoints don't have them.
+        has_probs = test_df is None or "probs" in saved["best"]
+        if same and has_probs:
             print(f"  seed {seed}: checkpoint found ({path}), skipping training", flush=True)
             return saved["best"]
-        print(f"  seed {seed}: checkpoint has different settings, training again", flush=True)
+        reason = "different settings" if not same else "no saved probabilities"
+        print(f"  seed {seed}: checkpoint has {reason}, training again", flush=True)
 
-    best = run_one_seed(args, train_df, dev_df, vocab, c2i, f2i, seed, device)
+    best = run_one_seed(args, train_df, dev_df, test_df, vocab, c2i, f2i, seed, device)
     path.parent.mkdir(parents=True, exist_ok=True)   # create the folder if it is missing
     torch.save({"settings": checkpoint_settings(args), "vocab": vocab,
                 "c2i": c2i, "f2i": f2i, "best": best}, path)
@@ -369,6 +403,9 @@ def main():
     ap.add_argument("--device", choices=["auto", "cpu", "mps", "cuda"], default="auto")
     ap.add_argument("--out_dir", default="results")        # where the .json results go
     ap.add_argument("--ckpt_dir", default="checkpoints")   # where the .pt model files go
+    ap.add_argument("--test", default=None,
+                    help="UNLABELLED test file; if given, save dev + test probabilities")
+    ap.add_argument("--probs_dir", default="results/probs")  # where probability files go
     args = ap.parse_args()
 
     device = get_device(args.device)
@@ -385,8 +422,15 @@ def main():
     f2i = {lab: i for i, lab in enumerate(sorted(train_df[FINE].unique()))}
     print(f"train={len(train_df)}  dev={len(dev_df)}  characters in vocabulary={len(vocab)}")
 
+    test_df = None
+    if args.test:
+        # Placeholder labels (the first tone and type), never used: the file has no labels.
+        test_df = load_unlabelled(args.test, list(c2i)[0], list(f2i)[0])
+        test_df["text"] = test_df["text"].str.lower()      # same lowercasing as train/dev
+        print(f"test (unlabelled)={len(test_df)}: probabilities will be saved")
+
     start = time.time()
-    runs = [run_or_resume_seed(args, train_df, dev_df, vocab, c2i, f2i, s, device)
+    runs = [run_or_resume_seed(args, train_df, dev_df, test_df, vocab, c2i, f2i, s, device)
             for s in args.seeds]
 
     cs = np.array([r["f1c"] for r in runs])
@@ -445,6 +489,16 @@ def main():
         "settings": vars(args),
     }, indent=2))
     print(f"saved: {out}")
+
+    # One probability file per seed and split, e.g. results/probs/m2_cnn_multi/dev_seed1.csv
+    if test_df is not None:
+        for seed, r in zip(args.seeds, runs):
+            for split, df in (("dev", dev_df), ("test", test_df)):
+                p = r["probs"][split]
+                path = Path(args.probs_dir) / f"m2_{args.model}_{args.task}" / f"{split}_seed{seed}.csv"
+                write_probs(path, df["Id"], p["pred_c"], p["pred_f"], p["prob_c"], p["prob_f"],
+                            list(c2i), list(f2i))
+        print(f"saved probabilities: {Path(args.probs_dir) / f'm2_{args.model}_{args.task}'}/")
 
 
 # This line means: run main() only when the file is executed directly,

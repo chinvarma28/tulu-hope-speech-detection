@@ -10,10 +10,9 @@ on the dev set; the test file here has no labels, so nothing is scored on test.
 Run from the main project folder (tulu-hope-speech), with .venv active:
     python scripts/m1_probs.py
 
-Output (one row per comment):
+Output (format: see probs_io.py):
     results/probs/m1_tfidf_lr/dev_seed0.csv
     results/probs/m1_tfidf_lr/test_seed0.csv
-Columns: Id, then "tone_<label>" for the 3 tones and "type_<label>" for the 5 hope types.
 M1 has no randomness, so there is one file per split, called seed 0.
 
 Requires: pandas, scikit-learn
@@ -22,22 +21,11 @@ Requires: pandas, scikit-learn
 import argparse
 from pathlib import Path
 
-import pandas as pd
 from sklearn.metrics import f1_score
 
-# explore_multitask.py is in the same folder, so Python can import from it.
+# These files are in the same folder, so Python can import from them.
 from explore_multitask import COARSE, FINE, load, make_m1_model
-
-# Short name used in the column headers -> column in the CSV files.
-TASKS = {"tone": COARSE, "type": FINE}
-
-
-def load_unlabelled(path):
-    """The unlabelled test file has only Id and text. The file on disk is never changed."""
-    df = pd.read_csv(path, dtype=str, keep_default_na=False)
-    df.columns = [c.strip() for c in df.columns]
-    df["text"] = df["text"].str.strip()
-    return df
+from probs_io import load_unlabelled, write_probs
 
 
 def main():
@@ -50,32 +38,34 @@ def main():
     args = ap.parse_args()
 
     train, dev = load(args.train), load(args.dev)
-    test = load_unlabelled(args.test)
+    test = load_unlabelled(args.test, "none", "none")   # placeholder labels, never used
     print(f"train={len(train)}  dev={len(dev)}  test (unlabelled)={len(test)}")
 
-    # One table per split. [["Id"]] (double brackets) keeps a one-column table.
-    out = {"dev": dev[["Id"]].copy(), "test": test[["Id"]].copy()}
-
-    for short, col in TASKS.items():
+    # results[split][column] = (predicted class numbers, probabilities, label names)
+    results = {"dev": {}, "test": {}}
+    for col in (COARSE, FINE):
         model = make_m1_model(weighted=True)   # the "balanced" M1 from the baseline table
         model.fit(train["text"], train[col])   # trained on train only
+        labels = list(model.classes_)          # label names, in the order of the columns
 
-        # predict_proba gives one column per class, in the order of model.classes_.
         for split, df in (("dev", dev), ("test", test)):
+            # predict_proba gives one column per class, in the order of model.classes_.
             probs = model.predict_proba(df["text"])
-            for k, label in enumerate(model.classes_):
-                out[split][f"{short}_{label}"] = probs[:, k]
+            preds = probs.argmax(axis=1)       # the class with the highest probability
+            results[split][col] = (preds, probs, labels)
 
         # Check: the dev score must match the M1 baseline (tone 0.579, type 0.400).
-        f1 = f1_score(dev[col], model.predict(dev["text"]), average="macro", zero_division=0)
-        print(f"dev macro F1, {short}: {f1:.3f}")
+        dev_preds, _, _ = results["dev"][col]
+        dev_true = [labels.index(x) for x in dev[col]]
+        f1 = f1_score(dev_true, dev_preds, average="macro", zero_division=0)
+        print(f"dev macro F1, {col}: {f1:.3f}")
 
-    out_dir = Path(args.out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    for split, table in out.items():
-        path = out_dir / f"{split}_seed0.csv"
-        table.to_csv(path, index=False)
-        print(f"saved: {path}  ({len(table)} rows, {table.shape[1] - 1} probability columns)")
+    for split, df in (("dev", dev), ("test", test)):
+        pred_c, prob_c, tone_labels = results[split][COARSE]
+        pred_f, prob_f, type_labels = results[split][FINE]
+        path = write_probs(Path(args.out_dir) / f"{split}_seed0.csv", df["Id"],
+                           pred_c, pred_f, prob_c, prob_f, tone_labels, type_labels)
+        print(f"saved: {path}  ({len(df)} rows)")
 
 
 if __name__ == "__main__":

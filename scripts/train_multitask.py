@@ -27,6 +27,9 @@ Each finished seed is saved to checkpoints/ (scores and predictions only; add
 --save_weights to also keep the ~950 MB model). Running the same command again
 skips seeds that are already finished.
 
+--test data/multitask_test_withoutlabel.csv  also saves class probabilities (dev and the
+UNLABELLED test file) at each seed's best dev epoch, in results/probs/ (format: probs_io.py).
+
 Requires: torch, transformers, pandas, scikit-learn
 """
 
@@ -47,6 +50,8 @@ from sklearn.metrics import classification_report, f1_score
 from torch.utils.data import DataLoader, Dataset
 # transformers = the Hugging Face library that downloads and runs pretrained models.
 from transformers import AutoModel, AutoTokenizer, get_linear_schedule_with_warmup
+
+from probs_io import load_unlabelled, write_probs   # probs_io.py, in the same folder
 
 COARSE = "Coarse-Grained"
 FINE = "Fine-Grained Hope"
@@ -291,6 +296,39 @@ def evaluate(model, loader, device, valid_mask=None, pairs=None):
     return f1c, f1f, (tc, pc, tf, pf)
 
 
+@torch.no_grad()
+def predict_probs(model, loader, device, n_c, n_f, valid_mask=None, pairs=None):
+    """Class probabilities and predicted classes for every comment in the loader.
+    Everything is kept as plain Python lists, which can be stored in a checkpoint.
+
+    M4 (pairs given): the model gives one probability per PAIR. A tone's probability is
+    the sum over the pairs with that tone, e.g. P(Blended) = sum of the 5 Blended pairs;
+    the same for hope types. The predicted labels still come from the best pair."""
+    model.eval()
+    prob_c, prob_f, pred_c, pred_f = [], [], [], []
+    for ids, att, _, _ in loader:               # the labels are not needed here
+        if pairs is None:
+            logit_c, logit_f = model(ids.to(device), att.to(device))
+            # softmax turns raw scores into probabilities that add up to 1.
+            pc = torch.softmax(logit_c, dim=-1).cpu().numpy()
+            pf = torch.softmax(logit_f, dim=-1).cpu().numpy()
+            a, b = decode(logit_c, logit_f, valid_mask)
+        else:
+            logit_p = model(ids.to(device), att.to(device))
+            pp = torch.softmax(logit_p, dim=-1).cpu().numpy()     # (batch, n_pairs)
+            pc = np.zeros((len(pp), n_c))
+            pf = np.zeros((len(pp), n_f))
+            for k, (c, f) in enumerate(pairs):
+                pc[:, c] += pp[:, k]                 # add pair k to its tone ...
+                pf[:, f] += pp[:, k]                 # ... and to its hope type
+            a, b = decode_pairs(logit_p, pairs)
+        prob_c += pc.tolist()
+        prob_f += pf.tolist()
+        pred_c += [int(x) for x in a]
+        pred_f += [int(x) for x in b]
+    return {"prob_c": prob_c, "prob_f": prob_f, "pred_c": pred_c, "pred_f": pred_f}
+
+
 def selection_score(task, f1c, f1f):
     """Single-task: only the trained head counts. Multi-task: the Joint Score."""
     if task == "coarse":
@@ -300,7 +338,7 @@ def selection_score(task, f1c, f1f):
     return (f1c + f1f) / 2
 
 
-def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
+def run_one_seed(args, train_df, dev_df, test_df, tok, c2i, f2i, seed, device):
     set_seed(seed)
     is_pairs = args.task == "pairs"          # True for M4, False for M3
 
@@ -315,6 +353,10 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
                           batch_size=args.batch_size, shuffle=True)
     dev_dl = DataLoader(HopeDataset(dev_df, tok, c2i, f2i, args.max_len),
                         batch_size=args.batch_size * 2)
+    test_dl = None
+    if test_df is not None:   # only when --test is given
+        test_dl = DataLoader(HopeDataset(test_df, tok, c2i, f2i, args.max_len),
+                             batch_size=args.batch_size * 2)
 
     w_c = class_weights([c2i[x] for x in train_df[COARSE]], len(c2i), device)
     w_f = class_weights([f2i[x] for x in train_df[FINE]], len(f2i), device)
@@ -378,6 +420,12 @@ def run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
         # Pick the best epoch by dev macro F1, never by loss.
         if score > best["score"]:
             best = {"score": score, "f1c": f1c, "f1f": f1f, "epoch": epoch, "preds": preds}
+            if test_dl is not None:
+                # Probabilities from this best epoch, for combining models later.
+                n_c, n_f = len(c2i), len(f2i)
+                best["probs"] = {
+                    "dev": predict_probs(model, dev_dl, device, n_c, n_f, valid_mask, pairs),
+                    "test": predict_probs(model, test_dl, device, n_c, n_f, valid_mask, pairs)}
             if args.save_weights:
                 best["weights"] = {k: v.detach().cpu().clone()
                                    for k, v in model.state_dict().items()}
@@ -406,7 +454,7 @@ def run_name(args):
 
 
 def checkpoint_settings(args):
-    ignore = ("seeds", "device", "out_dir", "ckpt_dir", "save_weights")
+    ignore = ("seeds", "device", "out_dir", "ckpt_dir", "save_weights", "test", "probs_dir")
     settings = {k: v for k, v in vars(args).items() if k not in ignore}
     # --pair_weights was added after the M3 and first M4 runs. Leave it out when it has
     # its default value, so those older checkpoints still match and are not retrained.
@@ -415,16 +463,20 @@ def checkpoint_settings(args):
     return settings
 
 
-def run_or_resume_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device):
+def run_or_resume_seed(args, train_df, dev_df, test_df, tok, c2i, f2i, seed, device):
     path = Path(args.ckpt_dir) / f"{run_name(args)}_seed{seed}.pt"
     if path.exists():
         saved = torch.load(path, weights_only=True)
-        if saved["settings"] == checkpoint_settings(args):
+        same = saved["settings"] == checkpoint_settings(args)
+        # With --test we also need the probabilities; older checkpoints don't have them.
+        has_probs = test_df is None or "probs" in saved["best"]
+        if same and has_probs:
             print(f"  seed {seed}: checkpoint found ({path}), skipping training", flush=True)
             return saved["best"]
-        print(f"  seed {seed}: checkpoint has different settings, training again", flush=True)
+        reason = "different settings" if not same else "no saved probabilities"
+        print(f"  seed {seed}: checkpoint has {reason}, training again", flush=True)
 
-    best = run_one_seed(args, train_df, dev_df, tok, c2i, f2i, seed, device)
+    best = run_one_seed(args, train_df, dev_df, test_df, tok, c2i, f2i, seed, device)
     path.parent.mkdir(parents=True, exist_ok=True)
     torch.save({"settings": checkpoint_settings(args), "c2i": c2i, "f2i": f2i,
                 "best": best}, path)
@@ -456,6 +508,9 @@ def main():
     # action="store_true" makes this an on/off switch: writing --save_weights turns it on.
     ap.add_argument("--save_weights", action="store_true",
                     help="also store the ~950 MB model weights in each checkpoint")
+    ap.add_argument("--test", default=None,
+                    help="UNLABELLED test file; if given, save dev + test probabilities")
+    ap.add_argument("--probs_dir", default="results/probs")  # where probability files go
     args = ap.parse_args()
 
     device = get_device(args.device)
@@ -481,10 +536,16 @@ def main():
             print(f"  {k:2d}  {name:38s} {train_counts[(c, f)]:5d} training comments"
                   f"   loss weight {w_p[k]:.2f}")
 
+    test_df = None
+    if args.test:
+        # Placeholder labels (the first tone and type), never used: the file has no labels.
+        test_df = load_unlabelled(args.test, list(c2i)[0], list(f2i)[0])
+        print(f"test (unlabelled)={len(test_df)}: probabilities will be saved")
+
     tok = AutoTokenizer.from_pretrained(args.model)
 
     start = time.time()
-    runs = [run_or_resume_seed(args, train_df, dev_df, tok, c2i, f2i, s, device)
+    runs = [run_or_resume_seed(args, train_df, dev_df, test_df, tok, c2i, f2i, s, device)
             for s in args.seeds]
 
     cs = np.array([r["f1c"] for r in runs])
@@ -550,6 +611,16 @@ def main():
         "settings": vars(args),
     }, indent=2))
     print(f"saved: {out}")
+
+    # One probability file per seed and split, e.g. results/probs/m3_muril-base-cased_multi/dev_seed1.csv
+    if test_df is not None:
+        for seed, r in zip(args.seeds, runs):
+            for split, df in (("dev", dev_df), ("test", test_df)):
+                p = r["probs"][split]
+                path = Path(args.probs_dir) / run_name(args) / f"{split}_seed{seed}.csv"
+                write_probs(path, df["Id"], p["pred_c"], p["pred_f"], p["prob_c"], p["prob_f"],
+                            list(c2i), list(f2i))
+        print(f"saved probabilities: {Path(args.probs_dir) / run_name(args)}/")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,117 @@
+{
+  "model": "cnn",
+  "task": "multi",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "tone_mean": 0.5477195400014363,
+  "tone_std": 0.018970728003585513,
+  "type_mean": 0.41154196684069727,
+  "type_std": 0.01123647003976902,
+  "best_epochs": [
+    9,
+    9,
+    6,
+    16,
+    20
+  ],
+  "per_class_f1_by_seed": [
+    {
+      "tone": {
+        "Blended Hope": 0.421,
+        "Discouraging Hope": 0.46,
+        "Encouraging Hope": 0.774
+      },
+      "type": {
+        "Fading Hope": 0.294,
+        "Hopelessness": 0.508,
+        "Inspiring Hope": 0.659,
+        "Optimistic Hope": 0.467,
+        "Realistic Hope": 0.194
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.435,
+        "Discouraging Hope": 0.413,
+        "Encouraging Hope": 0.762
+      },
+      "type": {
+        "Fading Hope": 0.213,
+        "Hopelessness": 0.534,
+        "Inspiring Hope": 0.618,
+        "Optimistic Hope": 0.416,
+        "Realistic Hope": 0.204
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.41,
+        "Discouraging Hope": 0.344,
+        "Encouraging Hope": 0.798
+      },
+      "type": {
+        "Fading Hope": 0.276,
+        "Hopelessness": 0.518,
+        "Inspiring Hope": 0.598,
+        "Optimistic Hope": 0.448,
+        "Realistic Hope": 0.286
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.426,
+        "Discouraging Hope": 0.473,
+        "Encouraging Hope": 0.793
+      },
+      "type": {
+        "Fading Hope": 0.219,
+        "Hopelessness": 0.54,
+        "Inspiring Hope": 0.656,
+        "Optimistic Hope": 0.42,
+        "Realistic Hope": 0.182
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.486,
+        "Discouraging Hope": 0.421,
+        "Encouraging Hope": 0.801
+      },
+      "type": {
+        "Fading Hope": 0.248,
+        "Hopelessness": 0.526,
+        "Inspiring Hope": 0.626,
+        "Optimistic Hope": 0.442,
+        "Realistic Hope": 0.197
+      }
+    }
+  ],
+  "settings": {
+    "model": "cnn",
+    "task": "multi",
+    "train": "data/train_clean.csv",
+    "dev": "data/dev_multitask.csv",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "epochs": 30,
+    "patience": 6,
+    "batch_size": 64,
+    "lr": 0.001,
+    "smooth": 0.1,
+    "device": "auto",
+    "out_dir": "/private/tmp/claude-501/-Users-chinmayavittalv-Downloads-tulu-hope-speech/a4fb35ee-db6a-43ff-8f6b-14e8ad83193e/scratchpad/cnn_check",
+    "ckpt_dir": "checkpoints",
+    "test": "data/multitask_test_withoutlabel.csv",
+    "probs_dir": "results/probs"
+  }
+}
