@@ -25,6 +25,7 @@ RUNS = [
     ("M3  MuRIL      tone only ", "m3_muril-base-cased_coarse"),
     ("M3  MuRIL      type only ", "m3_muril-base-cased_fine"),
     ("M4  MuRIL      pair head ", "m4_muril-base-cased_pairs"),
+    ("M4b MuRIL      pair head v2", "m4_muril-base-cased_pairs_w-product_ep8"),
 ]
 
 
@@ -66,7 +67,7 @@ def main():
               f"{lowest_name} {lowest_f1:.3f}")
 
     print("\nJoint = (tone F1 + type F1) / 2. A lowest-class F1 of 0.000 would mean a class "
-          "was never predicted;\nnone of the 50 neural models has that problem.")
+          "was never predicted;\nnone of the 55 neural models has that problem.")
 
 
 if __name__ == "__main__":
