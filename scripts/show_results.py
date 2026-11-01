@@ -5,7 +5,7 @@ Run from the main project folder (tulu-hope-speech), with .venv active:
     python scripts/show_results.py
 
 Reads the results/*.json files written by train_char.py (M2) and
-train_multitask.py (M3). M1 numbers come from results/m1_baseline.txt.
+train_multitask.py (M3 and M4). M1 numbers come from results/m1_baseline.txt.
 """
 
 import json
@@ -24,6 +24,7 @@ RUNS = [
     ("M3  MuRIL      multi-task", "m3_muril-base-cased_multi"),
     ("M3  MuRIL      tone only ", "m3_muril-base-cased_coarse"),
     ("M3  MuRIL      type only ", "m3_muril-base-cased_fine"),
+    ("M4  MuRIL      pair head ", "m4_muril-base-cased_pairs"),
 ]
 
 
@@ -65,7 +66,7 @@ def main():
               f"{lowest_name} {lowest_f1:.3f}")
 
     print("\nJoint = (tone F1 + type F1) / 2. A lowest-class F1 of 0.000 would mean a class "
-          "was never predicted;\nnone of the 45 neural models has that problem.")
+          "was never predicted;\nnone of the 50 neural models has that problem.")
 
 
 if __name__ == "__main__":

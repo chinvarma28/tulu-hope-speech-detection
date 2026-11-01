@@ -1,0 +1,135 @@
+{
+  "model": "google/muril-base-cased",
+  "task": "pairs",
+  "mask": "none",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "tone_mean": 0.5213359010991573,
+  "tone_std": 0.011921157503579322,
+  "type_mean": 0.41762855613696964,
+  "type_std": 0.007362079432863074,
+  "best_epochs": [
+    5,
+    5,
+    5,
+    5,
+    3
+  ],
+  "per_class_f1_by_seed": [
+    {
+      "tone": {
+        "Blended Hope": 0.399,
+        "Discouraging Hope": 0.382,
+        "Encouraging Hope": 0.806
+      },
+      "type": {
+        "Fading Hope": 0.294,
+        "Hopelessness": 0.537,
+        "Inspiring Hope": 0.673,
+        "Optimistic Hope": 0.402,
+        "Realistic Hope": 0.22
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.441,
+        "Discouraging Hope": 0.355,
+        "Encouraging Hope": 0.797
+      },
+      "type": {
+        "Fading Hope": 0.275,
+        "Hopelessness": 0.503,
+        "Inspiring Hope": 0.64,
+        "Optimistic Hope": 0.453,
+        "Realistic Hope": 0.183
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.423,
+        "Discouraging Hope": 0.365,
+        "Encouraging Hope": 0.803
+      },
+      "type": {
+        "Fading Hope": 0.188,
+        "Hopelessness": 0.502,
+        "Inspiring Hope": 0.667,
+        "Optimistic Hope": 0.448,
+        "Realistic Hope": 0.23
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.37,
+        "Discouraging Hope": 0.339,
+        "Encouraging Hope": 0.79
+      },
+      "type": {
+        "Fading Hope": 0.297,
+        "Hopelessness": 0.5,
+        "Inspiring Hope": 0.655,
+        "Optimistic Hope": 0.462,
+        "Realistic Hope": 0.194
+      }
+    },
+    {
+      "tone": {
+        "Blended Hope": 0.382,
+        "Discouraging Hope": 0.363,
+        "Encouraging Hope": 0.805
+      },
+      "type": {
+        "Fading Hope": 0.279,
+        "Hopelessness": 0.545,
+        "Inspiring Hope": 0.663,
+        "Optimistic Hope": 0.398,
+        "Realistic Hope": 0.234
+      }
+    }
+  ],
+  "pairs": [
+    "Blended Hope + Fading Hope",
+    "Blended Hope + Hopelessness",
+    "Blended Hope + Inspiring Hope",
+    "Blended Hope + Optimistic Hope",
+    "Blended Hope + Realistic Hope",
+    "Discouraging Hope + Fading Hope",
+    "Discouraging Hope + Hopelessness",
+    "Discouraging Hope + Inspiring Hope",
+    "Discouraging Hope + Realistic Hope",
+    "Encouraging Hope + Fading Hope",
+    "Encouraging Hope + Hopelessness",
+    "Encouraging Hope + Inspiring Hope",
+    "Encouraging Hope + Optimistic Hope",
+    "Encouraging Hope + Realistic Hope"
+  ],
+  "settings": {
+    "task": "pairs",
+    "model": "google/muril-base-cased",
+    "train": "/kaggle/input/datasets/chinmayavittalvarma/training-1/train_clean.csv",
+    "dev": "/kaggle/input/datasets/chinmayavittalvarma/training-1/dev_multitask.csv",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "epochs": 5,
+    "batch_size": 16,
+    "lr": 2e-05,
+    "head_lr": 0.001,
+    "max_len": 64,
+    "smooth": 0.1,
+    "mask": "none",
+    "device": "auto",
+    "out_dir": "/kaggle/working/m4_outputs/results",
+    "ckpt_dir": "/kaggle/working/m4_outputs/checkpoints",
+    "save_weights": false
+  }
+}
