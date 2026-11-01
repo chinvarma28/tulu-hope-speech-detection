@@ -135,6 +135,19 @@ def text_profile(df, name):
         print(f"    {t[:90]!r}")
 
 
+def make_m1_model(weighted=True):
+    """M1: character TF-IDF + logistic regression (one model per task).
+    Char n-grams beat word n-grams here: Romanised Tulu has no standard
+    spelling, so the same word appears in many forms.
+    Also used by m1_probs.py, so both scripts train exactly the same model."""
+    return make_pipeline(
+        TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5),
+                        min_df=2, sublinear_tf=True),
+        LogisticRegression(max_iter=2000, C=4.0,
+                           class_weight="balanced" if weighted else None),
+    )
+
+
 def baselines(train, dev):
     rule("5. BASELINES (macro F1 on the official dev set)")
     results = {}
@@ -146,15 +159,8 @@ def baselines(train, dev):
         mf1 = f1_score(y_dev, [majority] * len(y_dev), average="macro", zero_division=0)
         results[(task, "majority")] = mf1
 
-        # Char n-grams beat word n-grams here: Romanised Tulu has no standard
-        # spelling, so the same word appears in many forms.
         for weighted in (False, True):
-            clf = make_pipeline(
-                TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5),
-                                min_df=2, sublinear_tf=True),
-                LogisticRegression(max_iter=2000, C=4.0,
-                                   class_weight="balanced" if weighted else None),
-            )
+            clf = make_m1_model(weighted)
             clf.fit(train["text"], y_tr)
             pred = clf.predict(dev["text"])
             score = f1_score(y_dev, pred, average="macro", zero_division=0)
