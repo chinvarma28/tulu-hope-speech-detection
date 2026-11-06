@@ -1,0 +1,11 @@
+system,part,rows,tone,type,joint,tone_accuracy
+M3_avg,normal,428,0.477,0.344,0.41,0.554
+M3_avg,swapped,316,0.283,0.314,0.298,0.326
+ALL4_avg,normal,428,0.45,0.312,0.381,0.54
+ALL4_avg,swapped,316,0.262,0.298,0.28,0.297
+M1,normal,428,0.416,0.28,0.348,0.5
+M1,swapped,316,0.287,0.285,0.286,0.313
+CNN_avg,normal,428,0.46,0.304,0.382,0.537
+CNN_avg,swapped,316,0.296,0.29,0.293,0.335
+M4b_avg,normal,428,0.448,0.322,0.385,0.547
+M4b_avg,swapped,316,0.274,0.289,0.281,0.32
