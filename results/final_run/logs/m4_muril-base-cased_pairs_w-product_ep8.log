@@ -1,0 +1,196 @@
+model=google/muril-base-cased  task=pairs  mask=none  device=cuda  seeds=[1, 2, 3, 4, 5]
+train=3365  dev=753
+train: rows that break the official pair table: 460 / 3365 (13.7%)
+dev: rows that break the official pair table: 104 / 753 (13.8%)
+M4: one head over the 14 (tone, type) pairs seen in training (pair weights: product):
+   0  Blended Hope + Fading Hope               234 training comments   loss weight 1.99
+   1  Blended Hope + Hopelessness              336 training comments   loss weight 0.99
+   2  Blended Hope + Inspiring Hope             62 training comments   loss weight 0.93
+   3  Blended Hope + Optimistic Hope            58 training comments   loss weight 1.58
+   4  Blended Hope + Realistic Hope             58 training comments   loss weight 1.41
+   5  Discouraging Hope + Fading Hope           19 training comments   loss weight 2.04
+   6  Discouraging Hope + Hopelessness         688 training comments   loss weight 1.02
+   7  Discouraging Hope + Inspiring Hope         3 training comments   loss weight 0.95
+   8  Discouraging Hope + Realistic Hope         3 training comments   loss weight 1.44
+   9  Encouraging Hope + Fading Hope             1 training comments   loss weight 1.25
+  10  Encouraging Hope + Hopelessness            1 training comments   loss weight 0.62
+  11  Encouraging Hope + Inspiring Hope       1105 training comments   loss weight 0.58
+  12  Encouraging Hope + Optimistic Hope       347 training comments   loss weight 0.99
+  13  Encouraging Hope + Realistic Hope        450 training comments   loss weight 0.88
+test (unlabelled)=744: probabilities will be saved
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 8374.13it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: google/muril-base-cased
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.decoder.bias               | UNEXPECTED |  | 
+cls.predictions.decoder.weight             | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  seed 1  epoch 1  loss 2.4948  tone 0.438  type 0.301  selection 0.370
+  seed 1  epoch 2  loss 1.9829  tone 0.496  type 0.390  selection 0.443
+  seed 1  epoch 3  loss 1.7669  tone 0.522  type 0.422  selection 0.472
+  seed 1  epoch 4  loss 1.5919  tone 0.525  type 0.419  selection 0.472
+  seed 1  epoch 5  loss 1.4113  tone 0.519  type 0.406  selection 0.463
+  seed 1  epoch 6  loss 1.2822  tone 0.523  type 0.416  selection 0.470
+  seed 1  epoch 7  loss 1.1816  tone 0.523  type 0.411  selection 0.467
+  seed 1  epoch 8  loss 1.1272  tone 0.527  type 0.418  selection 0.472
+  seed 1: saved checkpoint /kaggle/working/final_outputs/checkpoints/m4_muril-base-cased_pairs_w-product_ep8_seed1.pt
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 9475.69it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: google/muril-base-cased
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.decoder.bias               | UNEXPECTED |  | 
+cls.predictions.decoder.weight             | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  seed 2  epoch 1  loss 2.4876  tone 0.481  type 0.325  selection 0.403
+  seed 2  epoch 2  loss 1.9911  tone 0.481  type 0.397  selection 0.439
+  seed 2  epoch 3  loss 1.7993  tone 0.485  type 0.380  selection 0.432
+  seed 2  epoch 4  loss 1.5965  tone 0.519  type 0.422  selection 0.471
+  seed 2  epoch 5  loss 1.4210  tone 0.512  type 0.429  selection 0.470
+  seed 2  epoch 6  loss 1.2930  tone 0.541  type 0.442  selection 0.491
+  seed 2  epoch 7  loss 1.1865  tone 0.553  type 0.451  selection 0.502
+  seed 2  epoch 8  loss 1.1169  tone 0.550  type 0.435  selection 0.492
+  seed 2: saved checkpoint /kaggle/working/final_outputs/checkpoints/m4_muril-base-cased_pairs_w-product_ep8_seed2.pt
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 12172.30it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: google/muril-base-cased
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.decoder.bias               | UNEXPECTED |  | 
+cls.predictions.decoder.weight             | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  seed 3  epoch 1  loss 2.4946  tone 0.475  type 0.360  selection 0.418
+  seed 3  epoch 2  loss 1.9972  tone 0.510  type 0.384  selection 0.447
+  seed 3  epoch 3  loss 1.7987  tone 0.489  type 0.396  selection 0.442
+  seed 3  epoch 4  loss 1.6151  tone 0.498  type 0.392  selection 0.445
+  seed 3  epoch 5  loss 1.4331  tone 0.500  type 0.388  selection 0.444
+  seed 3  epoch 6  loss 1.2832  tone 0.505  type 0.403  selection 0.454
+  seed 3  epoch 7  loss 1.1865  tone 0.503  type 0.399  selection 0.451
+  seed 3  epoch 8  loss 1.1208  tone 0.510  type 0.414  selection 0.462
+  seed 3: saved checkpoint /kaggle/working/final_outputs/checkpoints/m4_muril-base-cased_pairs_w-product_ep8_seed3.pt
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 8752.15it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: google/muril-base-cased
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.decoder.bias               | UNEXPECTED |  | 
+cls.predictions.decoder.weight             | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  seed 4  epoch 1  loss 2.4923  tone 0.454  type 0.323  selection 0.389
+  seed 4  epoch 2  loss 2.0015  tone 0.464  type 0.371  selection 0.417
+  seed 4  epoch 3  loss 1.7821  tone 0.509  type 0.376  selection 0.442
+  seed 4  epoch 4  loss 1.5740  tone 0.527  type 0.418  selection 0.473
+  seed 4  epoch 5  loss 1.4157  tone 0.527  type 0.422  selection 0.475
+  seed 4  epoch 6  loss 1.2781  tone 0.524  type 0.430  selection 0.477
+  seed 4  epoch 7  loss 1.1767  tone 0.519  type 0.434  selection 0.476
+  seed 4  epoch 8  loss 1.1139  tone 0.522  type 0.427  selection 0.475
+  seed 4: saved checkpoint /kaggle/working/final_outputs/checkpoints/m4_muril-base-cased_pairs_w-product_ep8_seed4.pt
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 12180.11it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: google/muril-base-cased
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.decoder.bias               | UNEXPECTED |  | 
+cls.predictions.decoder.weight             | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  seed 5  epoch 1  loss 2.5019  tone 0.475  type 0.328  selection 0.402
+  seed 5  epoch 2  loss 2.0035  tone 0.479  type 0.365  selection 0.422
+  seed 5  epoch 3  loss 1.7864  tone 0.485  type 0.405  selection 0.445
+  seed 5  epoch 4  loss 1.5869  tone 0.522  type 0.431  selection 0.476
+  seed 5  epoch 5  loss 1.4227  tone 0.534  type 0.424  selection 0.479
+  seed 5  epoch 6  loss 1.2814  tone 0.525  type 0.409  selection 0.467
+  seed 5  epoch 7  loss 1.1807  tone 0.519  type 0.416  selection 0.467
+  seed 5  epoch 8  loss 1.1205  tone 0.531  type 0.414  selection 0.473
+  seed 5: saved checkpoint /kaggle/working/final_outputs/checkpoints/m4_muril-base-cased_pairs_w-product_ep8_seed5.pt
+
+================================================================
+m4_muril-base-cased_pairs_w-product_ep8   (5 seeds, 2325s)
+  tone (L1) macro F1 : 0.530 +/- 0.014
+  type (L2) macro F1 : 0.427 +/- 0.013
+  JOINT SCORE        : 0.478
+  M1 floor to beat   : tone 0.579   type 0.400   joint 0.490
+================================================================
+
+Tone, best seed:
+                   precision    recall  f1-score   support
+
+     Blended Hope      0.484     0.454     0.468       163
+Discouraging Hope      0.395     0.354     0.373       164
+ Encouraging Hope      0.792     0.843     0.817       426
+
+         accuracy                          0.652       753
+        macro avg      0.557     0.550     0.553       753
+     weighted avg      0.639     0.652     0.645       753
+
+Hope type, best seed:
+                 precision    recall  f1-score   support
+
+    Fading Hope      0.324     0.404     0.359        57
+   Hopelessness      0.548     0.512     0.529       213
+ Inspiring Hope      0.634     0.668     0.651       262
+Optimistic Hope      0.430     0.531     0.475        98
+ Realistic Hope      0.291     0.203     0.239       123
+
+       accuracy                          0.510       753
+      macro avg      0.445     0.463     0.451       753
+   weighted avg      0.503     0.510     0.504       753
+
+Pairs on dev, best seed (true count / predicted count):
+  Blended Hope + Fading Hope               43 /   63
+  Blended Hope + Hopelessness              63 /   60
+  Blended Hope + Inspiring Hope            20 /    5
+  Blended Hope + Optimistic Hope           18 /   14
+  Blended Hope + Realistic Hope            19 /   11
+  Discouraging Hope + Fading Hope          12 /    8
+  Discouraging Hope + Hopelessness        150 /  139
+  Discouraging Hope + Inspiring Hope        2 /    0
+  Discouraging Hope + Realistic Hope        0 /    0
+  Encouraging Hope + Fading Hope            2 /    0
+  Encouraging Hope + Hopelessness           0 /    0
+  Encouraging Hope + Inspiring Hope       240 /  271
+  Encouraging Hope + Optimistic Hope       80 /  107
+  Encouraging Hope + Realistic Hope       104 /   75
+saved: /kaggle/working/final_outputs/results/m4_muril-base-cased_pairs_w-product_ep8.json
+saved probabilities: /kaggle/working/final_outputs/results/probs/m4_muril-base-cased_pairs_w-product_ep8/
