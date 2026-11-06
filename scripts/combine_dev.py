@@ -53,21 +53,22 @@ SHORT_NAMES = {
 TASKS = {"tone": (COARSE, "tone_"), "type": (FINE, "type_")}
 
 
-def read_model(folder, dev_ids):
-    """Read all dev probability files of one model.
+def read_model(folder, ids, split="dev"):
+    """Read all probability files of one model for one split ("dev" or "test").
 
     Returns a dictionary:  seed number -> {"tone": table, "type": table}
-    where each table has one row per dev comment (in the same order as the dev file)
+    where each table has one row per comment (in the order of `ids`)
     and one column per class, plus the model's own predicted labels under "pred_tone"/"pred_type".
+    (make_predictions.py also uses this function, with split="test".)
     """
     runs = {}
-    for path in sorted(folder.glob("dev_seed*.csv")):
-        seed = int(path.stem.replace("dev_seed", ""))   # "dev_seed3" -> 3
+    for path in sorted(folder.glob(f"{split}_seed*.csv")):
+        seed = int(path.stem.replace(f"{split}_seed", ""))   # "dev_seed3" -> 3
         df = pd.read_csv(path, dtype={"Id": str})
 
-        # Put the rows in the same order as the dev file, matched on Id.
+        # Put the rows in the same order as `ids`, matched on Id.
         # .loc[list of Ids] picks rows in exactly that order; it fails if an Id is missing.
-        df = df.set_index("Id").loc[dev_ids]
+        df = df.set_index("Id").loc[ids]
 
         run = {}
         for task, (_, prefix) in TASKS.items():

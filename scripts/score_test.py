@@ -137,6 +137,8 @@ def score(pred, gold):
         print(f"\n--- {name} ---")
         print(classification_report(m[t], m[p], zero_division=0, digits=3))
     print("A class at 0.000 was never predicted. Fix that before a bigger model.")
+    # Returned so score_final.py can collect the numbers of many systems in one table.
+    return f1c, f1f
 
 
 def main():
