@@ -140,7 +140,8 @@ No class has 0.000 F1 in any test predictions file.
    superb" as Discouraging Hope, and "Movie name dada?" as Hopelessness.
    `results/test_swapped_examples.csv` lists 52 comments from this part where the label
    and both final systems give opposite tones (Encouraging vs Discouraging), for checking
-   by hand.
+   by hand. (This file contains dataset comments, so it is not in the public repo; run
+   `scripts/analyse_test.py` to rebuild it.)
 6. **Even rows 1–428 score below dev** (M3: 0.410 vs 0.493 on dev), so part of the drop
    is an ordinary dev-to-test difference.
 

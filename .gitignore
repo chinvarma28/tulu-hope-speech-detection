@@ -1,4 +1,3 @@
-# Rename this file to ".gitignore" (with the dot, no .txt) in your project folder.
 # Each line is a pattern git will ignore -- these files never get uploaded to GitHub.
 
 # The Python virtual environment: large, machine-specific, rebuildable
@@ -23,3 +22,7 @@ data/
 
 # Throwaway output from live demos
 demo/
+
+# Test comments with their gold labels: part of the dataset, so kept out of the public repo.
+# Rebuild it locally with: python scripts/analyse_test.py
+results/test_swapped_examples.csv
